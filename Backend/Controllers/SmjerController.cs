@@ -1,8 +1,8 @@
-﻿using EdunovaAPP.Data;
-using EdunovaAPP.Models;
+﻿using RadniNalozi.Data;
+using RadniNalozi.Models;
 using Microsoft.AspNetCore.Mvc;
 
-namespace EdunovaAPP.Controllers
+namespace RadniNalozi.Controllers
 {
     [ApiController]
     [Route("api/v1/[controller]")]
@@ -10,11 +10,11 @@ namespace EdunovaAPP.Controllers
     {
         // koristimo dependency injection
         // 1. definiramo privatno svojstvo
-        private readonly EdunovaContext _context;
+        private readonly RadniNaloziContext _context;
 
 
         // 2. u konstruktoru postavljamo vrijednost
-        public SmjerController(EdunovaContext context)
+        public SmjerController(RadniNaloziContext context)
         {
             _context = context;
         }
@@ -58,7 +58,7 @@ namespace EdunovaAPP.Controllers
 
 
         [HttpPost]
-        public IActionResult Post(Smjer smjer)
+        public IActionResult Post(Djelatnik smjer)
         {
             try
             {
@@ -74,7 +74,7 @@ namespace EdunovaAPP.Controllers
 
 
         [HttpPut("{sifra:int}")]
-        public IActionResult Put(int sifra, Smjer smjer)
+        public IActionResult Put(int sifra, Djelatnik smjer)
         {
             try
             {

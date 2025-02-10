@@ -1,7 +1,7 @@
-﻿using EdunovaAPP.Models;
+﻿using RadniNalozi.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace EdunovaAPP.Data
+namespace RadniNalozi.Data
 {
     public class EdunovaContext : DbContext
     {
@@ -12,7 +12,7 @@ namespace EdunovaAPP.Data
         }
 
 
-        public DbSet<Smjer> Smjerovi { get; set; } // zbog ovog ovdje Smjerovi se tablica zove u mnozini
+        public DbSet<Djelatnik> Smjerovi { get; set; } // zbog ovog ovdje Smjerovi se tablica zove u mnozini
 
     }
 }
