@@ -3,10 +3,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace RadniNalozi.Data
 {
-    public class EdunovaContext : DbContext
+    public class RadniNaloziContext : DbContext
     {
 
-        public EdunovaContext(DbContextOptions<EdunovaContext> opcije) : base(opcije)
+        public RadniNaloziContext(DbContextOptions<RadniNaloziContext> opcije) : base(opcije)
         {
             //ovdje se  mogu fino postaviti opcije, ali ne za sada
         }

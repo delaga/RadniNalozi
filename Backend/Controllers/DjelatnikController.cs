@@ -6,7 +6,7 @@ namespace RadniNalozi.Controllers
 {
     [ApiController]
     [Route("api/v1/[controller]")]
-    public class SmjerController : ControllerBase
+    public class DjelatnikController : ControllerBase
     {
         // koristimo dependency injection
         // 1. definiramo privatno svojstvo
@@ -14,7 +14,7 @@ namespace RadniNalozi.Controllers
 
 
         // 2. u konstruktoru postavljamo vrijednost
-        public SmjerController(RadniNaloziContext context)
+        public DjelatnikController(RadniNaloziContext context)
         {
             _context = context;
         }
@@ -74,27 +74,27 @@ namespace RadniNalozi.Controllers
 
 
         [HttpPut("{sifra:int}")]
-        public IActionResult Put(int sifra, Djelatnik smjer)
+        public IActionResult Put(int sifra, Djelatnik djelatnik)
         {
             try
             {
 
-                var smjerBaza = _context.Smjerovi.Find(sifra);
-                if (smjerBaza == null)
+                var djelatnikBaza = _context.Smjerovi.Find(sifra);
+                if (djelatnikBaza == null)
                 {
                     return NotFound(new { poruka = $"Smjer s šifrom {sifra} ne postoji" });
                 }
 
                 // rucni mapping - kasnije automatika
-                smjerBaza.Naziv = smjer.Naziv;
-                smjerBaza.Trajanje = smjer.Trajanje;
-                smjerBaza.CijenaSmjera = smjer.CijenaSmjera;
-                smjerBaza.vaucer = smjer.vaucer;
-                smjerBaza.IzvodiSeOd = smjer.IzvodiSeOd;
+                djelatnikBaza.Ime = djelatnik.Ime;
+                djelatnikBaza.Prezime = djelatnik.Prezime;
+                djelatnikBaza.Telefon = djelatnik.Telefon;
+                djelatnikBaza.Email = djelatnik.Email;
+                djelatnikBaza.brbrutto2Placa = djelatnik.brbrutto2Placa;
 
-                _context.Smjerovi.Update(smjerBaza);
+                _context.Smjerovi.Update(djelatnikBaza);
                 _context.SaveChanges();
-                return Ok(smjerBaza);
+                return Ok(djelatnikBaza);
             }
             catch (Exception e)
             {
