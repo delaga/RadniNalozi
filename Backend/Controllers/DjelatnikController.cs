@@ -82,7 +82,7 @@ namespace Backend.Controllers
                 var djelatnikBaza = _context.Djelatnici.Find(sifra);
                 if (djelatnikBaza == null)
                 {
-                    return NotFound(new { poruka = $"Smjer s šifrom {sifra} ne postoji" });
+                    return NotFound(new { poruka = $"Djelatnik s šifrom {sifra} ne postoji" });
                 }
 
                 // rucni mapping - kasnije automatika
