@@ -58,13 +58,13 @@ namespace Backend.Controllers
 
 
         [HttpPost]
-        public IActionResult Post(Djelatnik smjer)
+        public IActionResult Post(Djelatnik djelatnik)
         {
             try
             {
-                _context.Djelatnici.Add(smjer);
+                _context.Djelatnici.Add(djelatnik);
                 _context.SaveChanges();
-                return StatusCode(StatusCodes.Status201Created, smjer);
+                return StatusCode(StatusCodes.Status201Created, djelatnik);
             }
             catch (Exception e)
             {
