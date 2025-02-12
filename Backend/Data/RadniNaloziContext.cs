@@ -1,7 +1,7 @@
-﻿using RadniNalozi.Models;
+﻿using Backend.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace RadniNalozi.Data
+namespace Backend.Data
 {
     public class RadniNaloziContext : DbContext
     {

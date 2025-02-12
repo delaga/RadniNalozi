@@ -1,8 +1,8 @@
-﻿using RadniNalozi.Data;
-using RadniNalozi.Models;
+﻿using Backend.Data;
+using Backend.Models;
 using Microsoft.AspNetCore.Mvc;
 
-namespace RadniNalozi.Controllers
+namespace Backend.Controllers
 {
     [ApiController]
     [Route("api/v1/[controller]")]

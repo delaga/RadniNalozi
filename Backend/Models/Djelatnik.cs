@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 
-namespace RadniNalozi.Models
+namespace Backend.Models
 {
     public class Djelatnik : Entitet
     {
