@@ -45,7 +45,7 @@ namespace Backend.Controllers
                 var smjer = _context.Djelatnici.Find(sifra);
                 if (smjer == null)
                 {
-                    return NotFound(new { poruka = $"Smjer s šifrom {sifra} ne postoji" });
+                    return NotFound(new { poruka = $"Djelatnik s šifrom {sifra} ne postoji" });
                 }
                 return Ok(smjer);
             }
@@ -115,7 +115,7 @@ namespace Backend.Controllers
                 var smjer = _context.Djelatnici.Find(sifra);
                 if (smjer == null)
                 {
-                    return NotFound(new { poruka = $"Smjer s šifrom {sifra} ne postoji" });
+                    return NotFound(new { poruka = $"Djelatnik s šifrom {sifra} ne postoji" });
                 }
                 _context.Djelatnici.Remove(smjer);
                 _context.SaveChanges();
