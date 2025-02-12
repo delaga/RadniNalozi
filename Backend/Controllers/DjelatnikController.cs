@@ -90,7 +90,7 @@ namespace Backend.Controllers
                 djelatnikBaza.Prezime = djelatnik.Prezime;
                 djelatnikBaza.Telefon = djelatnik.Telefon;
                 djelatnikBaza.Email = djelatnik.Email;
-                djelatnikBaza.brutto2Placa = djelatnik.brutto2Placa;
+                djelatnikBaza.Brutto2Placa = djelatnik.Brutto2Placa;
 
                 _context.Djelatnici.Update(djelatnikBaza);
                 _context.SaveChanges();

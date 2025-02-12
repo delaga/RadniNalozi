@@ -11,7 +11,8 @@ namespace Backend.Models
         public string Telefon { get; set; }
 
         public string Email { get; set; } 
-        public decimal brutto2Placa  { get; set; } = 0;
+
+        public decimal Brutto2Placa  { get; set; } = 0;
 
     }
 }
