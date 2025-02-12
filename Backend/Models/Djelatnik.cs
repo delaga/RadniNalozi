@@ -11,7 +11,7 @@ namespace RadniNalozi.Models
         public string Telefon { get; set; }
 
         public string Email { get; set; } 
-        public decimal brbrutto2Placa  { get; set; } = 0;
+        public decimal brutto2Placa  { get; set; } = 0;
 
     }
 }

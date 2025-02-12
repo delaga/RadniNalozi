@@ -24,7 +24,7 @@ namespace RadniNalozi.Controllers
         {
             try
             {
-                return Ok(_context.Smjerovi);
+                return Ok(_context.Djelatnici);
             }
             catch (Exception e)
             {
@@ -42,7 +42,7 @@ namespace RadniNalozi.Controllers
             }
             try
             {
-                var smjer = _context.Smjerovi.Find(sifra);
+                var smjer = _context.Djelatnici.Find(sifra);
                 if (smjer == null)
                 {
                     return NotFound(new { poruka = $"Smjer s šifrom {sifra} ne postoji" });
@@ -62,7 +62,7 @@ namespace RadniNalozi.Controllers
         {
             try
             {
-                _context.Smjerovi.Add(smjer);
+                _context.Djelatnici.Add(smjer);
                 _context.SaveChanges();
                 return StatusCode(StatusCodes.Status201Created, smjer);
             }
@@ -79,7 +79,7 @@ namespace RadniNalozi.Controllers
             try
             {
 
-                var djelatnikBaza = _context.Smjerovi.Find(sifra);
+                var djelatnikBaza = _context.Djelatnici.Find(sifra);
                 if (djelatnikBaza == null)
                 {
                     return NotFound(new { poruka = $"Smjer s šifrom {sifra} ne postoji" });
@@ -90,9 +90,9 @@ namespace RadniNalozi.Controllers
                 djelatnikBaza.Prezime = djelatnik.Prezime;
                 djelatnikBaza.Telefon = djelatnik.Telefon;
                 djelatnikBaza.Email = djelatnik.Email;
-                djelatnikBaza.brbrutto2Placa = djelatnik.brbrutto2Placa;
+                djelatnikBaza.brutto2Placa = djelatnik.brutto2Placa;
 
-                _context.Smjerovi.Update(djelatnikBaza);
+                _context.Djelatnici.Update(djelatnikBaza);
                 _context.SaveChanges();
                 return Ok(djelatnikBaza);
             }
@@ -112,12 +112,12 @@ namespace RadniNalozi.Controllers
             }
             try
             {
-                var smjer = _context.Smjerovi.Find(sifra);
+                var smjer = _context.Djelatnici.Find(sifra);
                 if (smjer == null)
                 {
                     return NotFound(new { poruka = $"Smjer s šifrom {sifra} ne postoji" });
                 }
-                _context.Smjerovi.Remove(smjer);
+                _context.Djelatnici.Remove(smjer);
                 _context.SaveChanges();
                 return NoContent();
             }

@@ -12,7 +12,7 @@ namespace RadniNalozi.Data
         }
 
 
-        public DbSet<Djelatnik> Smjerovi { get; set; } // zbog ovog ovdje Smjerovi se tablica zove u mnozini
+        public DbSet<Djelatnik> Djelatnici { get; set; } // zbog ovog ovdje Smjerovi se tablica zove u mnozini
 
     }
 }
