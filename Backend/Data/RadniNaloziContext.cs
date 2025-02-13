@@ -1,4 +1,4 @@
-﻿using Backend.Models;
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿using Backend.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Backend.Data
@@ -12,7 +12,14 @@ namespace Backend.Data
         }
 
 
-        public DbSet<Djelatnik> Djelatnici { get; set; } // zbog ovog ovdje Smjerovi se tablica zove u mnozini
+public DbSet<Djelatnik> Djelatnici { get; set; }
+public DbSet<Posao> Poslovi { get; set; }
+public DbSet<Klijent> Klijenti { get; set; }
+public DbSet<RadniNalog> RadniNalozi { get; set; }
+public DbSet<VrstaTroska> VrsteTroskova { get; set; }
+public DbSet<Trosak> Troskovi { get; set; }
+public DbSet<PosaoRadniNalog> PosaoRadniNalozi { get; set; }
+public DbSet<RadniSatiPoMjesecu> RadniSatiPoMjesecu { get; set; }
 
     }
 }
