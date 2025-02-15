@@ -1,11 +1,14 @@
-﻿use master;
-go
-drop database if exists RadniNalozi;
-go
-create database RadniNalozi collate Croatian_CI_AS;
-go
-use RadniNalozi;
-go
+﻿SELECT name, collation_name FROM sys.databases;
+GO
+ALTER DATABASE db_ab2d4a_radninalozi SET SINGLE_USER WITH
+ROLLBACK IMMEDIATE;
+GO
+ALTER DATABASE db_ab2d4a_radninalozi COLLATE Croatian_CI_AS;
+GO
+ALTER DATABASE db_ab2d4a_radninalozi SET MULTI_USER;
+GO
+SELECT name, collation_name FROM sys.databases;
+GO
 
 create table djelatnici (
 	sifra int not null PRIMARY KEY IDENTITY(1,1),
