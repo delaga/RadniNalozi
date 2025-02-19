@@ -1,0 +1,8 @@
+U CMD direktorij frontend izvesti
+
+npm install react-bootstrap bootstrap
+npm install react-router-dom
+npm install axios
+npm install react-number-format
+npm install moment
+npm install react-icons
