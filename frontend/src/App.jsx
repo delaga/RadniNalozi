@@ -5,9 +5,9 @@ import NavBarEdunova from './components/NavBarEdunova'
 import { Route, Routes } from 'react-router-dom'
 import { RouteNames } from './constants'
 import Pocetna from './pages/Pocetna'
-import DjelatniciPregled from './pages/djelatnici/djelatniciPregled'
-import DjelatniciDodaj from './pages/djelatnici/djelatniciDodaj'
-import DjelatniciPromjena from './pages/djelatnici/djelatniciPromjena'
+import DjelatniciPregled from './pages/djelatnici/DjelatniciPregled'
+import DjelatniciDodaj from './pages/djelatnici/DjelatniciDodaj'
+import DjelatniciPromjena from './pages/djelatnici/DjelatniciPromjena'
 
 
 
@@ -20,9 +20,9 @@ function App() {
         
         <Routes>
           <Route path={RouteNames.HOME} element={<Pocetna />} />
-          <Route path={RouteNames.DJELATNIK_PREGLED} element={<djelatniciPregled />} />
-          <Route path={RouteNames.DJELATNIK_NOVI} element={<djelatniciDodaj />} />
-          <Route path={RouteNames.DJELATNIK_PROMJENA} element={<djelatniciPromjena />} />
+          <Route path={RouteNames.DJELATNIK_PREGLED} element={<DjelatniciPregled />} />
+          <Route path={RouteNames.DJELATNIK_NOVI} element={<DjelatniciDodaj />} />
+          <Route path={RouteNames.DJELATNIK_PROMJENA} element={<DjelatniciPromjena />} />
         </Routes>
 
         <hr />

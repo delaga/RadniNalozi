@@ -31,7 +31,7 @@ export default function DjelatniciPregled(){
         return moment.utc(datum).format('DD. MM. YYYY.')
     }
 
-    function vaucer(v){
+    /*function vaucer(v){
         if(v==null) return 'gray'
         if(v) return 'green'
         return 'red'
@@ -42,7 +42,7 @@ export default function DjelatniciPregled(){
         if(v) return 'Vaučer'
         return 'NIJE vaučer'
     }
-
+    */
     function obrisi(sifra){
         if(!confirm('Sigurno obrisati')){
             return;
@@ -78,36 +78,36 @@ export default function DjelatniciPregled(){
                 </tr>
             </thead>
             <tbody>
-                {smjerovi && smjerovi.map((smjer,index)=>(
+                {djelatnici && djelatnici.map((d,index)=>(
                     <tr key={index}>
                         <td>
-                            {smjer.ime}
+                            {d.ime}
                         </td>
                         
                         <td>
-                            {smjer.prezime}
+                            {d.prezime}
                         </td>
 
                         <td>
-                            {smjer.telefon}
+                            {d.telefon}
                         </td>
 
                         <td>
-                            {smjer.email}
+                            {d.email}
                         </td>
 
                         <td>
-                            {smjer.brutto2Placa}
+                            {d.brutto2Placa}
                         </td>
                         
                         <td>
                             <Button
-                            onClick={()=>navigate(`/djelatnici/${djelatnik.sifra}`)}
+                            onClick={()=>navigate(`/djelatnici/${d.sifra}`)}
                             >Promjena</Button>
                             &nbsp;&nbsp;&nbsp;
                             <Button
                             variant="danger"
-                            onClick={()=>obrisi(djelatnik.sifra)}
+                            onClick={()=>obrisi(d.sifra)}
                             >Obriši</Button>
                         </td>
                     </tr>
