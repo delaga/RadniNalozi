@@ -9,8 +9,8 @@ import { useEffect, useState } from "react";
 export default function DjelatniciPromjena(){
 
     const navigate = useNavigate();
-    const [smjer,setSmjer] = useState({});
-    const [vaucer,setVaucer] = useState(false)
+    const [djelatnik,setDjelatnik] = useState({});
+    //const [vaucer,setVaucer] = useState(false)
     const routeParams = useParams();
 
     async function dohvatiDjelatnik(){
@@ -21,7 +21,7 @@ export default function DjelatniciPromjena(){
         }
         
         setDjelatnik(odgovor)
-        setVaucer(odgovor.vaucer)
+        //setVaucer(odgovor.vaucer)
     }
 
     useEffect(()=>{

@@ -72,7 +72,7 @@ export default function DjelatniciDodaj(){
         <Row>
             <Col xs={6} sm={6} md={3} lg={2} xl={6} xxl={6}>
                 <Link
-                to={RouteNames.Djelatnik_PREGLED}
+                to={RouteNames.DJELATNIK_PREGLED}
                 className="btn btn-danger siroko"
                 >Odustani</Link>
             </Col>
