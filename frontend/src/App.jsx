@@ -26,7 +26,7 @@ function App() {
         </Routes>
 
         <hr />
-        &copy; MIRZVS 2025
+        &copy; MIRZVS® 2025
       </Container>
      
     </>
