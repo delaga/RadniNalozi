@@ -48,7 +48,7 @@ export default function DjelatniciPromjena(){
                 prezime: podaci.get('prezime'),
                 telefon: podaci.get('telefon'),
                 email: podaci.get('email'),
-                brutto2placa: parseFloat(podaci.get('brutto2placa')),
+                brutto2placa: parseFloat(podaci.get('brutto2Placa')),
                
             }
         );
@@ -61,27 +61,27 @@ export default function DjelatniciPromjena(){
 
     <Form.Group controlId="ime">
             <Form.Label>Ime</Form.Label>
-            <Form.Control type="text" name="ime" required />
+            <Form.Control type="text" name="ime" required defaultValue={djelatnik.ime}/>
         </Form.Group>
 
         <Form.Group controlId="prezime">
             <Form.Label>Prezime</Form.Label>
-            <Form.Control type="text" name="prezime" required />
+            <Form.Control type="text" name="prezime" required  defaultValue={djelatnik.prezime}/>
         </Form.Group>
 
         <Form.Group controlId="telefon">
             <Form.Label>Telefon</Form.Label>
-            <Form.Control type="text" name="telefon" required />
+            <Form.Control type="text" name="telefon"  defaultValue={djelatnik.telefon} />
         </Form.Group>
 
         <Form.Group controlId="Email">
             <Form.Label>Email</Form.Label>
-            <Form.Control type="text" name="email" required />
+            <Form.Control type="text" name="email"  defaultValue={djelatnik.email} />
         </Form.Group>
 
-        <Form.Group controlId="brutto2placa">
+        <Form.Group controlId="brutto2Placa">
             <Form.Label>Brutto2 plaća</Form.Label>
-            <Form.Control type="number" name="brutto2placa" step={0.01} />
+            <Form.Control type="number" name="brutto2Placa" step={0.01}  defaultValue={djelatnik.brutto2Placa} />
         </Form.Group>
         <hr/>
 

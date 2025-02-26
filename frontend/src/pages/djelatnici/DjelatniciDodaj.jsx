@@ -27,8 +27,8 @@ export default function DjelatniciDodaj(){
             {
                 ime: podaci.get('ime'),
                 prezime: podaci.get('prezime'),
-                telefon: podaci.get('telefon'),
-                email: podaci.get('email'),
+                telefon: podaci.get('telefon').trim()=='' ? null : podaci.get('telefon').trim(),
+                email: podaci.get('email').trim()=='' ? null : podaci.get('email').trim(),
                 brutto2placa: parseFloat(podaci.get('brutto2placa')),
              
             }
@@ -52,12 +52,12 @@ export default function DjelatniciDodaj(){
 
         <Form.Group controlId="telefon">
             <Form.Label>Telefon</Form.Label>
-            <Form.Control type="text" name="telefon" required />
+            <Form.Control type="text" name="telefon"  />
         </Form.Group>
 
         <Form.Group controlId="Email">
             <Form.Label>Email</Form.Label>
-            <Form.Control type="text" name="email" required />
+            <Form.Control type="text" name="email"  />
         </Form.Group>
 
         <Form.Group controlId="brutto2placa">
