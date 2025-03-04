@@ -2,7 +2,7 @@ import { Button, Col, Form, Row } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import { RouteNames } from "../../constants";
 import moment from "moment";
-import DjelatnikService from "../../services/DjelatnikService";
+import DjelatnikService from "../../services/DjelatnikService.ts";
 
 
 export default function DjelatniciDodaj(){

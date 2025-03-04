@@ -25,10 +25,12 @@ export default function NavBarEdunova(){
                 <Nav className="me-auto">
                  
                     <NavDropdown title="Programi" id="basic-nav-dropdown">
-                    <NavDropdown.Item
-                    onClick={()=>navigate(RouteNames.DJELATNIK_PREGLED)}
-                    >Djelatnici</NavDropdown.Item>
-                    
+                        <NavDropdown.Item
+                        onClick={()=>navigate(RouteNames.DJELATNIK_PREGLED)}
+                        >Djelatnici</NavDropdown.Item>
+                        <NavDropdown.Item
+                        onClick={()=>navigate('/klijenti')}
+                        >Klijenti</NavDropdown.Item>
                     </NavDropdown>
                     <Nav.Link href={PRODUKCIJA + '/swagger'} target='_blank'>Swagger</Nav.Link>
                 </Nav>

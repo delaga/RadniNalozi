@@ -8,6 +8,9 @@ import Pocetna from './pages/Pocetna'
 import DjelatniciPregled from './pages/djelatnici/DjelatniciPregled'
 import DjelatniciDodaj from './pages/djelatnici/DjelatniciDodaj'
 import DjelatniciPromjena from './pages/djelatnici/DjelatniciPromjena'
+import KlijentiPregled from './pages/klijenti/KlijentiPregled'
+import KlijentiDodaj from './pages/klijenti/KlijentiDodaj'
+import KlijentiPromjena from './pages/klijenti/KlijentiPromjena'
 
 
 
@@ -23,6 +26,9 @@ function App() {
           <Route path={RouteNames.DJELATNIK_PREGLED} element={<DjelatniciPregled />} />
           <Route path={RouteNames.DJELATNIK_NOVI} element={<DjelatniciDodaj />} />
           <Route path={RouteNames.DJELATNIK_PROMJENA} element={<DjelatniciPromjena />} />
+          <Route path="/klijenti" element={<KlijentiPregled />} />
+          <Route path="/klijenti/dodaj" element={<KlijentiDodaj />} />
+          <Route path="/klijenti/promjena/:sifra" element={<KlijentiPromjena />} />
         </Routes>
 
         <hr />

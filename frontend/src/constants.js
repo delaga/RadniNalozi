@@ -6,5 +6,5 @@ export const RouteNames={
     DJELATNIK_PROMJENA: '/djelatnici/:sifra'
 }
 
-export const PRODUKCIJA='https://delaga.info';
+export const PRODUKCIJA='https://localhost:7194';
 

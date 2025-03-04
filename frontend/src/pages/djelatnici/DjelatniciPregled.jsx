@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import DjelatnikService from "../../services/DjelatnikService"
+import DjelatnikService from "../../services/DjelatnikService.ts"
 import { Button, Table } from "react-bootstrap";
 import { NumericFormat } from "react-number-format";
 import moment from "moment";

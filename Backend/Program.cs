@@ -37,8 +37,21 @@ builder.Services.AddCors(o =>
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Add test endpoint
+app.MapGet("/test-db", async (RadniNaloziContext context) => 
+{
+    try
+    {
+        await context.Database.CanConnectAsync();
+        return Results.Ok("Database connection successful");
+    }
+    catch (Exception ex)
+    {
+        return Results.Problem($"Database connection failed: {ex.Message}");
+    }
+});
 
+// Configure the HTTP request pipeline
 app.MapOpenApi();
 
 
