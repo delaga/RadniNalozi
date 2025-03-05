@@ -1,5 +1,7 @@
+using AutoMapper;
 using Backend.Data;
 using Backend.Models;
+using Backend.Models.DTO;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.Controllers
@@ -11,12 +13,13 @@ namespace Backend.Controllers
         // koristimo dependency injection
         // 1. definiramo privatno svojstvo
         private readonly RadniNaloziContext _context;
-
+        private readonly IMapper _mapper;
 
         // 2. u konstruktoru postavljamo vrijednost
-        public VrstaTroskaController(RadniNaloziContext context)
+        public VrstaTroskaController(RadniNaloziContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         [HttpGet]
@@ -24,7 +27,8 @@ namespace Backend.Controllers
         {
             try
             {
-                return Ok(_context.VrsteTroskova);
+                var vrsteTroskova = _context.VrsteTroskova.ToList();
+                return Ok(_mapper.Map<List<VrstaTroskaDTORead>>(vrsteTroskova));
             }
             catch (Exception e)
             {
@@ -47,7 +51,7 @@ namespace Backend.Controllers
                 {
                     return NotFound(new { poruka = $"Vrsta troška s šifrom {sifra} ne postoji" });
                 }
-                return Ok(vrstaTroska);
+                return Ok(_mapper.Map<VrstaTroskaDTORead>(vrstaTroska));
             }
             catch (Exception e)
             {
@@ -58,13 +62,14 @@ namespace Backend.Controllers
 
 
         [HttpPost]
-        public IActionResult Post(VrstaTroska vrstaTroska)
+        public IActionResult Post(VrstaTroskaDTOInsertUpdate vrstaTroskaDTO)
         {
             try
             {
+                var vrstaTroska = _mapper.Map<VrstaTroska>(vrstaTroskaDTO);
                 _context.VrsteTroskova.Add(vrstaTroska);
                 _context.SaveChanges();
-                return StatusCode(StatusCodes.Status201Created, vrstaTroska);
+                return StatusCode(StatusCodes.Status201Created, _mapper.Map<VrstaTroskaDTORead>(vrstaTroska));
             }
             catch (Exception e)
             {
@@ -74,7 +79,7 @@ namespace Backend.Controllers
 
 
         [HttpPut("{sifra:int}")]
-        public IActionResult Put(int sifra, VrstaTroska vrstaTroska)
+        public IActionResult Put(int sifra, VrstaTroskaDTOInsertUpdate vrstaTroskaDTO)
         {
             try
             {
@@ -85,12 +90,12 @@ namespace Backend.Controllers
                     return NotFound(new { poruka = $"Vrsta troška s šifrom {sifra} ne postoji" });
                 }
 
-                // rucni mapping - kasnije automatika
-                vrstaTroskaBaza.Naziv = vrstaTroska.Naziv;
+                // koristimo automapper
+                _mapper.Map(vrstaTroskaDTO, vrstaTroskaBaza);
 
                 _context.VrsteTroskova.Update(vrstaTroskaBaza);
                 _context.SaveChanges();
-                return Ok(vrstaTroskaBaza);
+                return Ok(_mapper.Map<VrstaTroskaDTORead>(vrstaTroskaBaza));
             }
             catch (Exception e)
             {

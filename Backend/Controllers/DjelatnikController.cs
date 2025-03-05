@@ -1,5 +1,7 @@
-﻿using Backend.Data;
+﻿﻿using AutoMapper;
+using Backend.Data;
 using Backend.Models;
+using Backend.Models.DTO;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.Controllers
@@ -11,12 +13,13 @@ namespace Backend.Controllers
         // koristimo dependency injection
         // 1. definiramo privatno svojstvo
         private readonly RadniNaloziContext _context;
-
+        private readonly IMapper _mapper;
 
         // 2. u konstruktoru postavljamo vrijednost
-        public DjelatnikController(RadniNaloziContext context)
+        public DjelatnikController(RadniNaloziContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         [HttpGet]
@@ -24,7 +27,8 @@ namespace Backend.Controllers
         {
             try
             {
-                return Ok(_context.Djelatnici);
+                var djelatnici = _context.Djelatnici.ToList();
+                return Ok(_mapper.Map<List<DjelatnikDTORead>>(djelatnici));
             }
             catch (Exception e)
             {
@@ -42,12 +46,12 @@ namespace Backend.Controllers
             }
             try
             {
-                var smjer = _context.Djelatnici.Find(sifra);
-                if (smjer == null)
+                var djelatnik = _context.Djelatnici.Find(sifra);
+                if (djelatnik == null)
                 {
                     return NotFound(new { poruka = $"Djelatnik s šifrom {sifra} ne postoji" });
                 }
-                return Ok(smjer);
+                return Ok(_mapper.Map<DjelatnikDTORead>(djelatnik));
             }
             catch (Exception e)
             {
@@ -58,13 +62,14 @@ namespace Backend.Controllers
 
 
         [HttpPost]
-        public IActionResult Post(Djelatnik djelatnik)
+        public IActionResult Post(DjelatnikDTOInsertUpdate djelatnikDTO)
         {
             try
             {
+                var djelatnik = _mapper.Map<Djelatnik>(djelatnikDTO);
                 _context.Djelatnici.Add(djelatnik);
                 _context.SaveChanges();
-                return StatusCode(StatusCodes.Status201Created, djelatnik);
+                return StatusCode(StatusCodes.Status201Created, _mapper.Map<DjelatnikDTORead>(djelatnik));
             }
             catch (Exception e)
             {
@@ -74,7 +79,7 @@ namespace Backend.Controllers
 
 
         [HttpPut("{sifra:int}")]
-        public IActionResult Put(int sifra, Djelatnik djelatnik)
+        public IActionResult Put(int sifra, DjelatnikDTOInsertUpdate djelatnikDTO)
         {
             try
             {
@@ -85,16 +90,12 @@ namespace Backend.Controllers
                     return NotFound(new { poruka = $"Djelatnik s šifrom {sifra} ne postoji" });
                 }
 
-                // rucni mapping - kasnije automatika
-                djelatnikBaza.Ime = djelatnik.Ime;
-                djelatnikBaza.Prezime = djelatnik.Prezime;
-                djelatnikBaza.Telefon = djelatnik.Telefon;
-                djelatnikBaza.Email = djelatnik.Email;
-                djelatnikBaza.Brutto2Placa = djelatnik.Brutto2Placa;
+                // koristimo automapper
+                _mapper.Map(djelatnikDTO, djelatnikBaza);
 
                 _context.Djelatnici.Update(djelatnikBaza);
                 _context.SaveChanges();
-                return Ok(djelatnikBaza);
+                return Ok(_mapper.Map<DjelatnikDTORead>(djelatnikBaza));
             }
             catch (Exception e)
             {
@@ -112,12 +113,12 @@ namespace Backend.Controllers
             }
             try
             {
-                var smjer = _context.Djelatnici.Find(sifra);
-                if (smjer == null)
+                var djelatnik = _context.Djelatnici.Find(sifra);
+                if (djelatnik == null)
                 {
                     return NotFound(new { poruka = $"Djelatnik s šifrom {sifra} ne postoji" });
                 }
-                _context.Djelatnici.Remove(smjer);
+                _context.Djelatnici.Remove(djelatnik);
                 _context.SaveChanges();
                 return NoContent();
             }

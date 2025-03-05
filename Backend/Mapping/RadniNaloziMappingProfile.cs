@@ -13,7 +13,15 @@ namespace Backend.Mapping
             CreateMap<KlijentDTOInsertUpdate, Klijent>();
             CreateMap<Klijent, KlijentDTOInsertUpdate>();
             
-            // Možemo dodati ostala mapiranja za druge entitete po potrebi
+            // Djelatnik mappings
+            CreateMap<Djelatnik, DjelatnikDTORead>();
+            CreateMap<DjelatnikDTOInsertUpdate, Djelatnik>();
+            CreateMap<Djelatnik, DjelatnikDTOInsertUpdate>();
+            
+            // VrstaTroska mappings
+            CreateMap<VrstaTroska, VrstaTroskaDTORead>();
+            CreateMap<VrstaTroskaDTOInsertUpdate, VrstaTroska>();
+            CreateMap<VrstaTroska, VrstaTroskaDTOInsertUpdate>();
         }
     }
 }
