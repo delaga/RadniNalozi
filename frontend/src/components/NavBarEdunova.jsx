@@ -28,7 +28,24 @@ export default function NavBarEdunova(){
                     <NavDropdown.Item
                     onClick={()=>navigate(RouteNames.DJELATNIK_PREGLED)}
                     >Djelatnici</NavDropdown.Item>
-                    
+                    <NavDropdown.Item
+                    onClick={()=>navigate(RouteNames.KLIJENT_PREGLED)}
+                    >Klijenti</NavDropdown.Item>
+                    <NavDropdown.Item
+                    onClick={()=>navigate(RouteNames.POSAO_PREGLED)}
+                    >Poslovi</NavDropdown.Item>
+                    <NavDropdown.Item
+                    onClick={()=>navigate(RouteNames.VRSTATROSKA_PREGLED)}
+                    >Vrste troškova</NavDropdown.Item>
+                    <NavDropdown.Item
+                    onClick={()=>navigate(RouteNames.RADNISATI_PREGLED)}
+                    >Radni sati po mjesecu</NavDropdown.Item>
+                    <NavDropdown.Item
+                    onClick={()=>navigate(RouteNames.RADNINALOG_PREGLED)}
+                    >Radni nalozi</NavDropdown.Item>
+                    <NavDropdown.Item
+                    onClick={()=>navigate(RouteNames.TROSAK_PREGLED)}
+                    >Troškovi</NavDropdown.Item>
                     </NavDropdown>
                     <Nav.Link href={PRODUKCIJA + '/swagger'} target='_blank'>Swagger</Nav.Link>
                 </Nav>

@@ -1,4 +1,5 @@
 using Backend.Data;
+using Backend.Mapping;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,7 +19,8 @@ builder.Services.AddDbContext<RadniNaloziContext>(o => {
     o.UseSqlServer(builder.Configuration.GetConnectionString("RadniNaloziContext"));
 });
 
-
+// Add AutoMapper
+builder.Services.AddAutoMapper(typeof(RadniNaloziMappingProfile));
 
 //preduvijet za rad u Frontendu
 
