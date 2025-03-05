@@ -67,7 +67,7 @@ export default function RadniNaloziPregled(){
                 {radniNalozi && radniNalozi.map((rn,index)=>(
                     <tr key={index}>
                         <td>
-                            {rn.djelatnikIme} {rn.djelatnikPrezime}
+                            {rn.djelatnikImeIPrezime}
                         </td>
                         
                         <td>

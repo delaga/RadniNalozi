@@ -2,8 +2,7 @@ namespace Backend.Models.DTO
 {
     public record RadniNalogDTORead(
         int Sifra,
-        string DjelatnikIme,
-        string DjelatnikPrezime,
+        string DjelatnikImeIPrezime,
         string KlijentNaziv,
         DateTime? VrijemePocetka,
         DateTime? VrijemeZavrsetka,
