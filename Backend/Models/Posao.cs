@@ -10,6 +10,6 @@ namespace Backend.Models
         public decimal? Vrijednost { get; set; }
 
         [JsonIgnore]
-        public ICollection<PosaoRadniNalog> PosloviRadniNalozi { get; set; } = new List<PosaoRadniNalog>();
+        public ICollection<RadniNalog> RadniNalozi { get; } = [];
     }
 }

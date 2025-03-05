@@ -1,5 +1,7 @@
+using AutoMapper;
 using Backend.Data;
 using Backend.Models;
+using Backend.Models.DTO;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,18 +9,8 @@ namespace Backend.Controllers
 {
     [ApiController]
     [Route("api/v1/[controller]")]
-    public class RadniNalogController : ControllerBase
+    public class RadniNalogController(RadniNaloziContext context, IMapper mapper) : EdunovaController(context, mapper)
     {
-        // koristimo dependency injection
-        // 1. definiramo privatno svojstvo
-        private readonly RadniNaloziContext _context;
-
-
-        // 2. u konstruktoru postavljamo vrijednost
-        public RadniNalogController(RadniNaloziContext context)
-        {
-            _context = context;
-        }
 
         [HttpGet]
         public IActionResult Get()
@@ -26,25 +18,13 @@ namespace Backend.Controllers
             try
             {
                 var radniNalozi = _context.RadniNalozi
-                    .Include(r => r.KlijentNavigation)
-                    .Include(r => r.DjelatnikNavigation)
+                    .Include(r => r.Klijent)
+                    .Include(r => r.Djelatnik)
                     .ToList();
 
-                // Transform the data to include klijent and djelatnik information
-                var result = radniNalozi.Select(r => new
-                {
-                    r.Sifra,
-                    r.Djelatnik,
-                    DjelatnikImePrezime = r.DjelatnikNavigation != null ? $"{r.DjelatnikNavigation.Ime} {r.DjelatnikNavigation.Prezime}" : "",
-                    r.Klijent,
-                    KlijentNaziv = r.KlijentNavigation?.Naziv,
-                    r.VrijemePocetka,
-                    r.VrijemeZavrsetka,
-                    r.RadnihSati,
-                    r.Napomena
-                });
 
-                return Ok(result);
+
+                return Ok(_mapper.Map<List<RadniNalogDTORead>>(radniNalozi));
             }
             catch (Exception e)
             {

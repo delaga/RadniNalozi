@@ -51,7 +51,7 @@ namespace Backend.Controllers
                 {
                     return NotFound(new { poruka = $"Djelatnik s šifrom {sifra} ne postoji" });
                 }
-                return Ok(_mapper.Map<DjelatnikDTORead>(djelatnik));
+                return Ok(_mapper.Map<DjelatnikDTOInsertUpdate>(djelatnik));
             }
             catch (Exception e)
             {

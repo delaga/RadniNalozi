@@ -5,15 +5,13 @@ namespace Backend.Models
 {
     public class RadniNalog : Entitet
     {
-        public int Djelatnik { get; set; }
-        [JsonIgnore]
-        [ForeignKey("Djelatnik")]
-        public Djelatnik DjelatnikNavigation { get; set; }
+     
+        [ForeignKey("djelatnik")]
+        public required Djelatnik Djelatnik{ get; set; }
 
-        public int Klijent { get; set; }
-        [JsonIgnore]
-        [ForeignKey("Klijent")]
-        public Klijent KlijentNavigation { get; set; }
+      
+        [ForeignKey("klijent")]
+        public required Klijent Klijent { get; set; }
 
         public DateTime? VrijemePocetka { get; set; }
 
@@ -23,7 +21,6 @@ namespace Backend.Models
 
         public string? Napomena { get; set; }
 
-        [JsonIgnore]
-        public ICollection<PosaoRadniNalog> PosloviRadniNalozi { get; set; } = new List<PosaoRadniNalog>();
+        public ICollection<Posao> Poslovi { get; set; } = [];
     }
 }

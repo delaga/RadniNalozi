@@ -1,5 +1,6 @@
 ﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿using Backend.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Text.RegularExpressions;
 
 namespace Backend.Data
 {
@@ -12,32 +13,31 @@ namespace Backend.Data
         }
 
 
-public DbSet<Djelatnik> Djelatnici { get; set; }
-public DbSet<Klijent> Klijenti { get; set; }
-public DbSet<Posao> Poslovi { get; set; }
-public DbSet<VrstaTroska> VrsteTroskova { get; set; }
-public DbSet<RadniSatiPoMjesecu> RadniSatiPoMjesecu { get; set; }
-public DbSet<RadniNalog> RadniNalozi { get; set; }
-public DbSet<Trosak> Troskovi { get; set; }
-public DbSet<PosaoRadniNalog> PosloviRadniNalozi { get; set; }
+        public DbSet<Djelatnik> Djelatnici { get; set; }
+        public DbSet<Klijent> Klijenti { get; set; }
+        public DbSet<Posao> Poslovi { get; set; }
+        public DbSet<VrstaTroska> VrsteTroskova { get; set; }
+        public DbSet<RadniSatiPoMjesecu> RadniSatiPoMjesecu { get; set; }
+        public DbSet<RadniNalog> RadniNalozi { get; set; }
+        public DbSet<Trosak> Troskovi { get; set; }
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        base.OnModelCreating(modelBuilder);
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
 
-        // Configure composite key for the many-to-many relationship
-        modelBuilder.Entity<PosaoRadniNalog>()
-            .HasKey(pr => new { pr.Posao, pr.RadniNalog });
+            // Configure composite key for the many-to-many relationship
+            modelBuilder.Entity<RadniNalog>().HasOne(rn => rn.Djelatnik);
+            modelBuilder.Entity<RadniNalog>().HasOne(rn => rn.Klijent);
 
-        // Configure relationships
-        modelBuilder.Entity<PosaoRadniNalog>()
-            .HasOne(pr => pr.PosaoNavigation)
-            .WithMany()
-            .HasForeignKey(pr => pr.Posao);
+            modelBuilder.Entity<RadniNalog>()
+               .HasMany(g => g.Poslovi)
+               .WithMany(p => p.RadniNalozi)
+               .UsingEntity<Dictionary<string, object>>("posao_radniNalog",
+                c => c.HasOne<Posao>().WithMany().HasForeignKey("posao"),
+               c => c.HasOne<RadniNalog>().WithMany().HasForeignKey("radniNalog"),
+               c => c.ToTable("posao_radniNalog")
+               );
 
-        modelBuilder.Entity<PosaoRadniNalog>()
-            .HasOne(pr => pr.RadniNalogNavigation)
-            .WithMany()
-            .HasForeignKey(pr => pr.RadniNalog);
+        }
     }
 }
