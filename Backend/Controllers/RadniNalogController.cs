@@ -154,5 +154,13 @@ namespace Backend.Controllers
                 return BadRequest(e);
             }
         }
+
+        // get poslovi na radnom nalogu (polaznici na grupi)
+
+        // dodaj posao na radni nalog (dodaj polaznika na grupu)
+
+        // makni posao s radnog naloga (makni polaznika s grupe)
+
+
     }
 }
