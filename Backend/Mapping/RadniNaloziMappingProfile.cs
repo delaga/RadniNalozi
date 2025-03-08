@@ -25,9 +25,9 @@ namespace Backend.Mapping
 
             // RadniNalog mappings
             CreateMap<RadniNalog, RadniNalogDTORead>()
-                .ForMember(dest => dest.DjelatnikImeIPrezime,
+                .ForCtorParam("DjelatnikImeIPrezime",
                     opt => opt.MapFrom(src => src.Djelatnik.Ime + " " + src.Djelatnik.Prezime))
-                .ForMember(dest => dest.KlijentNaziv,
+                .ForCtorParam("KlijentNaziv",
                     opt => opt.MapFrom(src => src.Klijent.Naziv));
             
             CreateMap<RadniNalogDTOInsertUpdate, RadniNalog>();
