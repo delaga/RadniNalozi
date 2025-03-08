@@ -24,13 +24,13 @@ namespace Backend.Mapping
             CreateMap<VrstaTroska, VrstaTroskaDTOInsertUpdate>();
 
             // RadniNalog mappings
-            CreateMap<RadniNalog, RadniNalogDTORead>().ForCtorParam(
-                   "DjelatnikImeIPrezime",
-                   opt => opt.MapFrom(src => src.Djelatnik.Ime + " " + src.Djelatnik.Prezime)
-               ).ForCtorParam(
-                   "KlijentNaziv",
-                   opt => opt.MapFrom(src => src.Klijent.Naziv)
-               );
+            CreateMap<RadniNalog, RadniNalogDTORead>()
+                .ForMember(dest => dest.DjelatnikImeIPrezime,
+                    opt => opt.MapFrom(src => src.Djelatnik.Ime + " " + src.Djelatnik.Prezime))
+                .ForMember(dest => dest.KlijentNaziv,
+                    opt => opt.MapFrom(src => src.Klijent.Naziv));
+            
+            CreateMap<RadniNalogDTOInsertUpdate, RadniNalog>();
 
             // Posao mappings
             CreateMap<Posao, PosaoDTORead>();

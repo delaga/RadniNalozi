@@ -12,6 +12,10 @@ namespace Backend.Controllers
     public class RadniNalogController(RadniNaloziContext context, IMapper mapper) : EdunovaController(context, mapper)
     {
 
+        /// <summary>
+        /// Gets all RadniNalozi
+        /// </summary>
+        /// <returns>List of RadniNalozi</returns>
         [HttpGet]
         public IActionResult Get()
         {
@@ -22,17 +26,20 @@ namespace Backend.Controllers
                     .Include(r => r.Djelatnik)
                     .ToList();
 
-
-
                 return Ok(_mapper.Map<List<RadniNalogDTORead>>(radniNalozi));
             }
             catch (Exception e)
             {
-                return BadRequest(e);
+                return BadRequest(new { poruka = e.Message });
             }
         }
 
 
+        /// <summary>
+        /// Gets a single RadniNalog by sifra
+        /// </summary>
+        /// <param name="sifra">RadniNalog identifier</param>
+        /// <returns>RadniNalog</returns>
         [HttpGet("{sifra:int}")]
         public IActionResult Get(int sifra)
         {
@@ -42,43 +49,58 @@ namespace Backend.Controllers
             }
             try
             {
-                var radniNalog = _context.RadniNalozi.Find(sifra);
+                var radniNalog = _context.RadniNalozi
+                    .Include(r => r.Klijent)
+                    .Include(r => r.Djelatnik)
+                    .FirstOrDefault(r => r.Sifra == sifra);
+                    
                 if (radniNalog == null)
                 {
                     return NotFound(new { poruka = $"Radni nalog s šifrom {sifra} ne postoji" });
                 }
-                return Ok(radniNalog);
+                return Ok(_mapper.Map<RadniNalogDTORead>(radniNalog));
             }
             catch (Exception e)
             {
-                return BadRequest(e);
+                return BadRequest(new { poruka = e.Message });
             }
         }
 
 
 
+        /// <summary>
+        /// Creates a new RadniNalog
+        /// </summary>
+        /// <param name="dto">RadniNalogDTOInsertUpdate containing radni nalog data</param>
+        /// <returns>Created RadniNalog</returns>
         [HttpPost]
-        public IActionResult Post(RadniNalog radniNalog)
+        public IActionResult Post(RadniNalogDTOInsertUpdate dto)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             try
             {
                 // Check if Djelatnik exists
-                var djelatnik = _context.Djelatnici.Find(radniNalog.Djelatnik);
+                var djelatnik = _context.Djelatnici.Find(dto.DjelatnikSifra);
                 if (djelatnik == null)
                 {
-                    return BadRequest(new { poruka = $"Djelatnik s šifrom {radniNalog.Djelatnik} ne postoji" });
+                    return BadRequest(new { poruka = $"Djelatnik s šifrom {dto.DjelatnikSifra} ne postoji" });
                 }
 
                 // Check if Klijent exists
-                var klijent = _context.Klijenti.Find(radniNalog.Klijent);
+                var klijent = _context.Klijenti.Find(dto.KlijentSifra);
                 if (klijent == null)
                 {
-                    return BadRequest(new { poruka = $"Klijent s šifrom {radniNalog.Klijent} ne postoji" });
+                    return BadRequest(new { poruka = $"Klijent s šifrom {dto.KlijentSifra} ne postoji" });
                 }
 
+                var radniNalog = _mapper.Map<RadniNalog>(dto);
                 _context.RadniNalozi.Add(radniNalog);
                 _context.SaveChanges();
-                return StatusCode(StatusCodes.Status201Created, radniNalog);
+                return StatusCode(StatusCodes.Status201Created, _mapper.Map<RadniNalogDTORead>(radniNalog));
             }
             catch (Exception e)
             {
@@ -87,9 +109,20 @@ namespace Backend.Controllers
         }
 
 
+        /// <summary>
+        /// Updates an existing RadniNalog
+        /// </summary>
+        /// <param name="sifra">RadniNalog identifier</param>
+        /// <param name="dto">RadniNalogDTOInsertUpdate containing updated data</param>
+        /// <returns>Updated RadniNalog</returns>
         [HttpPut("{sifra:int}")]
-        public IActionResult Put(int sifra, RadniNalog radniNalog)
+        public IActionResult Put(int sifra, RadniNalogDTOInsertUpdate dto)
         {
+            if (sifra <= 0 || dto == null)
+            {
+                return BadRequest();
+            }
+
             try
             {
                 var radniNalogBaza = _context.RadniNalozi.Find(sifra);
@@ -99,30 +132,23 @@ namespace Backend.Controllers
                 }
 
                 // Check if Djelatnik exists
-                var djelatnik = _context.Djelatnici.Find(radniNalog.Djelatnik);
+                var djelatnik = _context.Djelatnici.Find(dto.DjelatnikSifra);
                 if (djelatnik == null)
                 {
-                    return BadRequest(new { poruka = $"Djelatnik s šifrom {radniNalog.Djelatnik} ne postoji" });
+                    return BadRequest(new { poruka = $"Djelatnik s šifrom {dto.DjelatnikSifra} ne postoji" });
                 }
 
                 // Check if Klijent exists
-                var klijent = _context.Klijenti.Find(radniNalog.Klijent);
+                var klijent = _context.Klijenti.Find(dto.KlijentSifra);
                 if (klijent == null)
                 {
-                    return BadRequest(new { poruka = $"Klijent s šifrom {radniNalog.Klijent} ne postoji" });
+                    return BadRequest(new { poruka = $"Klijent s šifrom {dto.KlijentSifra} ne postoji" });
                 }
 
-                // rucni mapping - kasnije automatika
-                radniNalogBaza.Djelatnik = radniNalog.Djelatnik;
-                radniNalogBaza.Klijent = radniNalog.Klijent;
-                radniNalogBaza.VrijemePocetka = radniNalog.VrijemePocetka;
-                radniNalogBaza.VrijemeZavrsetka = radniNalog.VrijemeZavrsetka;
-                radniNalogBaza.RadnihSati = radniNalog.RadnihSati;
-                radniNalogBaza.Napomena = radniNalog.Napomena;
-
+                _mapper.Map(dto, radniNalogBaza);
                 _context.RadniNalozi.Update(radniNalogBaza);
                 _context.SaveChanges();
-                return Ok(radniNalogBaza);
+                return Ok(_mapper.Map<RadniNalogDTORead>(radniNalogBaza));
             }
             catch (Exception e)
             {
@@ -155,12 +181,17 @@ namespace Backend.Controllers
             }
         }
 
+        /// <summary>
+        /// Gets all poslovi for a specific radni nalog
+        /// </summary>
+        /// <param name="sifra">RadniNalog identifier</param>
+        /// <returns>List of poslovi for the specified radni nalog</returns>
         [HttpGet("{sifra:int}/poslovi")]
         public IActionResult GetPosloviNaRadnomNalogu(int sifra)
         {
             if (sifra <= 0)
             {
-                return BadRequest("Šifra mora biti pozitivan broj");
+                return BadRequest(new { poruka = "Šifra mora biti pozitivan broj" });
             }
 
             try
@@ -171,20 +202,100 @@ namespace Backend.Controllers
 
                 if (radniNalog == null)
                 {
-                    return NotFound($"Radni nalog s šifrom {sifra} ne postoji");
+                    return NotFound(new { poruka = $"Radni nalog s šifrom {sifra} ne postoji" });
                 }
 
                 return Ok(_mapper.Map<List<PosaoDTORead>>(radniNalog.Poslovi));
             }
             catch (Exception e)
             {
-                return BadRequest(e.Message);
+                return BadRequest(new { poruka = e.Message });
             }
         }
 
-        // dodaj posao na radni nalog (dodaj polaznika na grupu)
+        /// <summary>
+        /// Adds a posao to radni nalog
+        /// </summary>
+        /// <param name="sifraRadniNalog">RadniNalog identifier</param>
+        /// <param name="sifraPosao">Posao identifier</param>
+        /// <returns>Updated list of poslovi</returns>
+        [HttpPost("{sifraRadniNalog:int}/poslovi/{sifraPosao:int}")]
+        public IActionResult DodajPosaoNaRadniNalog(int sifraRadniNalog, int sifraPosao)
+        {
+            if (sifraRadniNalog <= 0 || sifraPosao <= 0)
+            {
+                return BadRequest(new { poruka = "Šifre moraju biti pozitivni brojevi" });
+            }
 
-        // makni posao s radnog naloga (makni polaznika s grupe)
+            try
+            {
+                var radniNalog = _context.RadniNalozi
+                    .Include(r => r.Poslovi)
+                    .FirstOrDefault(r => r.Sifra == sifraRadniNalog);
+
+                if (radniNalog == null)
+                {
+                    return NotFound(new { poruka = $"Radni nalog s šifrom {sifraRadniNalog} ne postoji" });
+                }
+
+                var posao = _context.Poslovi.Find(sifraPosao);
+                if (posao == null)
+                {
+                    return NotFound(new { poruka = $"Posao s šifrom {sifraPosao} ne postoji" });
+                }
+
+                radniNalog.Poslovi.Add(posao);
+                _context.SaveChanges();
+
+                return Ok(_mapper.Map<List<PosaoDTORead>>(radniNalog.Poslovi));
+            }
+            catch (Exception e)
+            {
+                return BadRequest(new { poruka = e.Message });
+            }
+        }
+
+        /// <summary>
+        /// Removes a posao from radni nalog
+        /// </summary>
+        /// <param name="sifraRadniNalog">RadniNalog identifier</param>
+        /// <param name="sifraPosao">Posao identifier</param>
+        /// <returns>Updated list of poslovi</returns>
+        [HttpDelete("{sifraRadniNalog:int}/poslovi/{sifraPosao:int}")]
+        public IActionResult MakniPosaoSaRadnogNaloga(int sifraRadniNalog, int sifraPosao)
+        {
+            if (sifraRadniNalog <= 0 || sifraPosao <= 0)
+            {
+                return BadRequest(new { poruka = "Šifre moraju biti pozitivni brojevi" });
+            }
+
+            try
+            {
+                var radniNalog = _context.RadniNalozi
+                    .Include(r => r.Poslovi)
+                    .FirstOrDefault(r => r.Sifra == sifraRadniNalog);
+
+                if (radniNalog == null)
+                {
+                    return NotFound(new { poruka = $"Radni nalog s šifrom {sifraRadniNalog} ne postoji" });
+                }
+
+                var posao = radniNalog.Poslovi.FirstOrDefault(p => p.Sifra == sifraPosao);
+                if (posao == null)
+                {
+                    return NotFound(new { poruka = $"Posao s šifrom {sifraPosao} ne postoji na ovom radnom nalogu" });
+                }
+
+                radniNalog.Poslovi.Remove(posao);
+                _context.SaveChanges();
+
+                return Ok(_mapper.Map<List<PosaoDTORead>>(radniNalog.Poslovi));
+            }
+            catch (Exception e)
+            {
+                return BadRequest(new { poruka = e.Message });
+            }
+        }
 
 
     }

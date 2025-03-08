@@ -1,5 +1,7 @@
 using Backend.Data;
 using Backend.Models;
+using Backend.Models.DTO;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.Controllers
@@ -13,26 +15,36 @@ namespace Backend.Controllers
         private readonly RadniNaloziContext _context;
 
 
+        private readonly IMapper _mapper;
+
         // 2. u konstruktoru postavljamo vrijednost
-        public PosaoController(RadniNaloziContext context)
+        public PosaoController(RadniNaloziContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
+        /// <summary>
+        /// Dohvaća sve poslove
+        /// </summary>
         [HttpGet]
         public IActionResult Get()
         {
             try
             {
-                return Ok(_context.Poslovi);
+                var poslovi = _context.Poslovi.ToList();
+                return Ok(_mapper.Map<List<PosaoDTORead>>(poslovi));
             }
             catch (Exception e)
             {
-                return BadRequest(e);
+                return BadRequest(e.Message);
             }
         }
 
-
+        /// <summary>
+        /// Dohvaća posao po šifri
+        /// </summary>
+        /// <param name="sifra">Šifra posla</param>
         [HttpGet("{sifra:int}")]
         public IActionResult Get(int sifra)
         {
@@ -47,11 +59,11 @@ namespace Backend.Controllers
                 {
                     return NotFound(new { poruka = $"Posao s šifrom {sifra} ne postoji" });
                 }
-                return Ok(posao);
+                return Ok(_mapper.Map<PosaoDTORead>(posao));
             }
             catch (Exception e)
             {
-                return BadRequest(e);
+                return BadRequest(e.Message);
             }
         }
 
