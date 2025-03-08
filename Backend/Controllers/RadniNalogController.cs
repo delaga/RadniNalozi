@@ -155,7 +155,32 @@ namespace Backend.Controllers
             }
         }
 
-        // get poslovi na radnom nalogu (polaznici na grupi)
+        [HttpGet("{sifra:int}/poslovi")]
+        public IActionResult GetPosloviNaRadnomNalogu(int sifra)
+        {
+            if (sifra <= 0)
+            {
+                return BadRequest("Šifra mora biti pozitivan broj");
+            }
+
+            try
+            {
+                var radniNalog = _context.RadniNalozi
+                    .Include(r => r.Poslovi)
+                    .FirstOrDefault(r => r.Sifra == sifra);
+
+                if (radniNalog == null)
+                {
+                    return NotFound($"Radni nalog s šifrom {sifra} ne postoji");
+                }
+
+                return Ok(_mapper.Map<List<PosaoDTORead>>(radniNalog.Poslovi));
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
 
         // dodaj posao na radni nalog (dodaj polaznika na grupu)
 

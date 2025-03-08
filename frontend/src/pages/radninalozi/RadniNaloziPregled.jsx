@@ -54,6 +54,7 @@ export default function RadniNaloziPregled(){
         <Table striped bordered hover responsive>
             <thead>
                 <tr>
+                    <th>Radni nalog</th>
                     <th>Djelatnik</th>
                     <th>Klijent</th>
                     <th>Vrijeme početka</th>
@@ -66,6 +67,9 @@ export default function RadniNaloziPregled(){
             <tbody>
                 {radniNalozi && radniNalozi.map((rn,index)=>(
                     <tr key={index}>
+                        <td>
+                            Broj: {rn.sifra}
+                        </td>
                         <td>
                             {rn.djelatnikImeIPrezime}
                         </td>

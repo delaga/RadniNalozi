@@ -31,6 +31,9 @@ namespace Backend.Mapping
                    "KlijentNaziv",
                    opt => opt.MapFrom(src => src.Klijent.Naziv)
                );
+
+            // Posao mappings
+            CreateMap<Posao, PosaoDTORead>();
         }
     }
 }
