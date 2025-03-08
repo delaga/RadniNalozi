@@ -98,7 +98,10 @@ namespace Backend.Controllers
                 }
 
                 var radniNalog = _mapper.Map<RadniNalog>(dto);
+                radniNalog.Djelatnik = djelatnik;
+                radniNalog.Klijent = klijent;
                 _context.RadniNalozi.Add(radniNalog);
+
                 _context.SaveChanges();
                 return StatusCode(StatusCodes.Status201Created, _mapper.Map<RadniNalogDTORead>(radniNalog));
             }
