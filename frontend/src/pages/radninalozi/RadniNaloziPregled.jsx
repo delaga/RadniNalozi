@@ -8,10 +8,11 @@ import moment from "moment";
 
 export default function RadniNaloziPregled(){
 
-    const[radniNalozi, setRadniNalozi] = useState();
-    const[selectedRadniNalog, setSelectedRadniNalog] = useState(null);
-    const[poslovi, setPoslovi] = useState([]);
-    const[troskovi, setTroskovi] = useState([]);
+    // State varijable
+    const[radniNalozi, setRadniNalozi] = useState(); // Lista svih radnih naloga
+    const[selectedRadniNalog, setSelectedRadniNalog] = useState(null); // Trenutno odabrani radni nalog
+    const[poslovi, setPoslovi] = useState([]); // Poslovi vezani za odabrani radni nalog
+    const[troskovi, setTroskovi] = useState([]); // Troškovi vezani za odabrani radni nalog
     const navigate = useNavigate();
 
     async function dohvatiRadniNalozi(){
@@ -45,30 +46,33 @@ export default function RadniNaloziPregled(){
             return;
         }
         dohvatiRadniNalozi();
-        // Reset selected radni nalog and related data
+        // Resetiranje odabranog radnog naloga i povezanih podataka
         setSelectedRadniNalog(null);
         setPoslovi([]);
         setTroskovi([]);
     }
 
+    // Dohvaća poslove za radni nalog s određenom šifrom
     async function dohvatiPoslove(sifra) {
         const odgovor = await RadniNalogService.getPoslovi(sifra);
         setPoslovi(odgovor || []);
     }
 
+    // Dohvaća troškove za radni nalog s određenom šifrom
     async function dohvatiTroskove(sifra) {
         const odgovor = await RadniNalogService.getTroskovi(sifra);
         setTroskovi(odgovor || []);
     }
 
+    // Funkcija za odabir radnog naloga i prikaz povezanih poslova i troškova
     function selectRadniNalog(rn) {
         if (selectedRadniNalog && selectedRadniNalog.sifra === rn.sifra) {
-            // If clicking the same row, deselect it
+            // Ako je kliknuti redak već odabran, poništi odabir
             setSelectedRadniNalog(null);
             setPoslovi([]);
             setTroskovi([]);
         } else {
-            // Select the new row
+            // Odaberi novi redak i dohvati povezane poslove i troškove
             setSelectedRadniNalog(rn);
             dohvatiPoslove(rn.sifra);
             dohvatiTroskove(rn.sifra);
@@ -151,8 +155,10 @@ export default function RadniNaloziPregled(){
             </tbody>
         </Table>
         
+        {/* Prikaz poslova i troškova samo kada je odabran radni nalog */}
         {selectedRadniNalog && (
             <Container className="mt-4">
+                {/* Tablica poslova */}
                 <Row>
                     <Col>
                         <h4>Poslovi za radni nalog: {selectedRadniNalog.sifra}</h4>
@@ -160,7 +166,6 @@ export default function RadniNaloziPregled(){
                             <thead>
                                 <tr>
                                     <th>Naziv</th>
-                                    <th>Opis</th>
                                     <th>Vrijednost</th>
                                 </tr>
                             </thead>
@@ -168,20 +173,20 @@ export default function RadniNaloziPregled(){
                                 {poslovi.length > 0 ? (
                                     poslovi.map((posao, index) => (
                                         <tr key={index}>
-                                            <td>{posao.naziv}</td>
-                                            <td>{posao.opis}</td>
+                                            <td>{posao.nazivPosla}</td>
                                             <td>{posao.vrijednost}</td>
                                         </tr>
                                     ))
                                 ) : (
                                     <tr>
-                                        <td colSpan="3" className="text-center">Nema poslova za ovaj radni nalog</td>
+                                        <td colSpan="2" className="text-center">Nema poslova za ovaj radni nalog</td>
                                     </tr>
                                 )}
                             </tbody>
                         </Table>
                     </Col>
                 </Row>
+                {/* Tablica troškova */}
                 <Row className="mt-4">
                     <Col>
                         <h4>Troškovi za radni nalog: {selectedRadniNalog.sifra}</h4>

@@ -301,10 +301,10 @@ namespace Backend.Controllers
         }
 
         /// <summary>
-        /// Gets all troskovi for a specific radni nalog
+        /// Dohvaća sve troškove za određeni radni nalog
         /// </summary>
-        /// <param name="sifra">RadniNalog identifier</param>
-        /// <returns>List of troskovi for the specified radni nalog</returns>
+        /// <param name="sifra">Šifra radnog naloga</param>
+        /// <returns>Lista troškova za određeni radni nalog</returns>
         [HttpGet("{sifra:int}/troskovi")]
         public IActionResult GetTroskoviNaRadnomNalogu(int sifra)
         {
@@ -334,11 +334,11 @@ namespace Backend.Controllers
         }
 
         /// <summary>
-        /// Adds a trosak to radni nalog
+        /// Dodaje trošak na radni nalog
         /// </summary>
-        /// <param name="sifraRadniNalog">RadniNalog identifier</param>
-        /// <param name="sifraTrosak">Trosak identifier</param>
-        /// <returns>Updated list of troskovi</returns>
+        /// <param name="sifraRadniNalog">Šifra radnog naloga</param>
+        /// <param name="sifraTrosak">Šifra troška</param>
+        /// <returns>Ažurirana lista troškova</returns>
         [HttpPost("{sifraRadniNalog:int}/troskovi/{sifraTrosak:int}")]
         public IActionResult DodajTrosakNaRadniNalog(int sifraRadniNalog, int sifraTrosak)
         {
@@ -390,11 +390,11 @@ namespace Backend.Controllers
         }
 
         /// <summary>
-        /// Removes a trosak from radni nalog
+        /// Uklanja trošak s radnog naloga
         /// </summary>
-        /// <param name="sifraRadniNalog">RadniNalog identifier</param>
-        /// <param name="sifraTrosak">Trosak identifier</param>
-        /// <returns>Updated list of troskovi</returns>
+        /// <param name="sifraRadniNalog">Šifra radnog naloga</param>
+        /// <param name="sifraTrosak">Šifra troška</param>
+        /// <returns>Ažurirana lista troškova</returns>
         [HttpDelete("{sifraRadniNalog:int}/troskovi/{sifraTrosak:int}")]
         public IActionResult MakniTrosakSaRadnogNaloga(int sifraRadniNalog, int sifraTrosak)
         {

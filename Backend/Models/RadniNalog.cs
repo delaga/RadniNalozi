@@ -21,8 +21,10 @@ namespace Backend.Models
 
         public string? Napomena { get; set; }
 
+        // Kolekcija poslova vezanih za radni nalog
         public ICollection<Posao> Poslovi { get; set; } = [];
 
+        // Kolekcija troškova vezanih za radni nalog
         public ICollection<Trosak> Troskovi { get; set; } = [];
     }
 }

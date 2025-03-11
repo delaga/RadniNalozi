@@ -35,10 +35,12 @@ namespace Backend.Mapping
             // Posao mappings
             CreateMap<Posao, PosaoDTORead>();
 
-            // Trosak mappings
+            // Mapiranje troškova
             CreateMap<Trosak, TrosakDTORead>()
+                // Mapiranje naziva vrste troška
                 .ForCtorParam("VrstaNaziv",
                     opt => opt.MapFrom(src => src.VrstaNavigation != null ? src.VrstaNavigation.Naziv : ""))
+                // Izračun ukupne cijene troška (količina * cijena)
                 .ForCtorParam("Ukupno",
                     opt => opt.MapFrom(src => src.Kolicina * src.Cijena));
         }

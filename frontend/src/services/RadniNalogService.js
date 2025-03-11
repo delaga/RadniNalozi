@@ -37,20 +37,22 @@ async function obrisi(sifra){
     .catch(()=>{return {greska: true, poruka:'Problem kod brisanja'}})
 }
 
+// Dohvaća poslove vezane za radni nalog s određenom šifrom
 async function getPoslovi(sifra){
     return await HttpService.get('/RadniNalog/' + sifra + '/poslovi')
     .then((odgovor)=>{
         return odgovor.data;
     })
-    .catch((e)=>{return []})
+    .catch((e)=>{return []}) // U slučaju greške vraća prazno polje
 }
 
+// Dohvaća troškove vezane za radni nalog s određenom šifrom
 async function getTroskovi(sifra){
     return await HttpService.get('/RadniNalog/' + sifra + '/troskovi')
     .then((odgovor)=>{
         return odgovor.data;
     })
-    .catch((e)=>{return []})
+    .catch((e)=>{return []}) // U slučaju greške vraća prazno polje
 }
 
 
