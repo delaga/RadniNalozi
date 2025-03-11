@@ -300,6 +300,136 @@ namespace Backend.Controllers
             }
         }
 
+        /// <summary>
+        /// Gets all troskovi for a specific radni nalog
+        /// </summary>
+        /// <param name="sifra">RadniNalog identifier</param>
+        /// <returns>List of troskovi for the specified radni nalog</returns>
+        [HttpGet("{sifra:int}/troskovi")]
+        public IActionResult GetTroskoviNaRadnomNalogu(int sifra)
+        {
+            if (sifra <= 0)
+            {
+                return BadRequest(new { poruka = "Šifra mora biti pozitivan broj" });
+            }
 
+            try
+            {
+                var radniNalog = _context.RadniNalozi
+                    .Include(r => r.Troskovi)
+                    .ThenInclude(t => t.VrstaNavigation)
+                    .FirstOrDefault(r => r.Sifra == sifra);
+
+                if (radniNalog == null)
+                {
+                    return NotFound(new { poruka = $"Radni nalog s šifrom {sifra} ne postoji" });
+                }
+
+                return Ok(_mapper.Map<List<TrosakDTORead>>(radniNalog.Troskovi));
+            }
+            catch (Exception e)
+            {
+                return BadRequest(new { poruka = e.Message });
+            }
+        }
+
+        /// <summary>
+        /// Adds a trosak to radni nalog
+        /// </summary>
+        /// <param name="sifraRadniNalog">RadniNalog identifier</param>
+        /// <param name="sifraTrosak">Trosak identifier</param>
+        /// <returns>Updated list of troskovi</returns>
+        [HttpPost("{sifraRadniNalog:int}/troskovi/{sifraTrosak:int}")]
+        public IActionResult DodajTrosakNaRadniNalog(int sifraRadniNalog, int sifraTrosak)
+        {
+            if (sifraRadniNalog <= 0 || sifraTrosak <= 0)
+            {
+                return BadRequest(new { poruka = "Šifre moraju biti pozitivni brojevi" });
+            }
+
+            try
+            {
+                var radniNalog = _context.RadniNalozi
+                    .Include(r => r.Troskovi)
+                    .ThenInclude(t => t.VrstaNavigation)
+                    .FirstOrDefault(r => r.Sifra == sifraRadniNalog);
+
+                if (radniNalog == null)
+                {
+                    return NotFound(new { poruka = $"Radni nalog s šifrom {sifraRadniNalog} ne postoji" });
+                }
+
+                var trosak = _context.Troskovi.Find(sifraTrosak);
+                if (trosak == null)
+                {
+                    return NotFound(new { poruka = $"Trošak s šifrom {sifraTrosak} ne postoji" });
+                }
+
+                // Check if the trosak is already associated with this radni nalog
+                if (trosak.RadniNalog != sifraRadniNalog)
+                {
+                    // Update the trosak to be associated with this radni nalog
+                    trosak.RadniNalog = sifraRadniNalog;
+                    _context.Troskovi.Update(trosak);
+                }
+
+                // Make sure the trosak is in the collection
+                if (!radniNalog.Troskovi.Any(t => t.Sifra == sifraTrosak))
+                {
+                    radniNalog.Troskovi.Add(trosak);
+                }
+
+                _context.SaveChanges();
+
+                return Ok(_mapper.Map<List<TrosakDTORead>>(radniNalog.Troskovi));
+            }
+            catch (Exception e)
+            {
+                return BadRequest(new { poruka = e.Message });
+            }
+        }
+
+        /// <summary>
+        /// Removes a trosak from radni nalog
+        /// </summary>
+        /// <param name="sifraRadniNalog">RadniNalog identifier</param>
+        /// <param name="sifraTrosak">Trosak identifier</param>
+        /// <returns>Updated list of troskovi</returns>
+        [HttpDelete("{sifraRadniNalog:int}/troskovi/{sifraTrosak:int}")]
+        public IActionResult MakniTrosakSaRadnogNaloga(int sifraRadniNalog, int sifraTrosak)
+        {
+            if (sifraRadniNalog <= 0 || sifraTrosak <= 0)
+            {
+                return BadRequest(new { poruka = "Šifre moraju biti pozitivni brojevi" });
+            }
+
+            try
+            {
+                var radniNalog = _context.RadniNalozi
+                    .Include(r => r.Troskovi)
+                    .ThenInclude(t => t.VrstaNavigation)
+                    .FirstOrDefault(r => r.Sifra == sifraRadniNalog);
+
+                if (radniNalog == null)
+                {
+                    return NotFound(new { poruka = $"Radni nalog s šifrom {sifraRadniNalog} ne postoji" });
+                }
+
+                var trosak = radniNalog.Troskovi.FirstOrDefault(t => t.Sifra == sifraTrosak);
+                if (trosak == null)
+                {
+                    return NotFound(new { poruka = $"Trošak s šifrom {sifraTrosak} ne postoji na ovom radnom nalogu" });
+                }
+
+                radniNalog.Troskovi.Remove(trosak);
+                _context.SaveChanges();
+
+                return Ok(_mapper.Map<List<TrosakDTORead>>(radniNalog.Troskovi));
+            }
+            catch (Exception e)
+            {
+                return BadRequest(new { poruka = e.Message });
+            }
+        }
     }
 }

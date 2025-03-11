@@ -22,5 +22,7 @@ namespace Backend.Models
         public string? Napomena { get; set; }
 
         public ICollection<Posao> Poslovi { get; set; } = [];
+
+        public ICollection<Trosak> Troskovi { get; set; } = [];
     }
 }

@@ -34,6 +34,13 @@ namespace Backend.Mapping
 
             // Posao mappings
             CreateMap<Posao, PosaoDTORead>();
+
+            // Trosak mappings
+            CreateMap<Trosak, TrosakDTORead>()
+                .ForCtorParam("VrstaNaziv",
+                    opt => opt.MapFrom(src => src.VrstaNavigation != null ? src.VrstaNavigation.Naziv : ""))
+                .ForCtorParam("Ukupno",
+                    opt => opt.MapFrom(src => src.Kolicina * src.Cijena));
         }
     }
 }
