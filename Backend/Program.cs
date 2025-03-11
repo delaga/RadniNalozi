@@ -1,6 +1,7 @@
 using Backend.Data;
 using Backend.Mapping;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +22,7 @@ builder.Services.AddDbContext<RadniNaloziContext>(o => {
 
 // Add AutoMapper
 builder.Services.AddAutoMapper(typeof(RadniNaloziMappingProfile));
+
 
 //preduvijet za rad u Frontendu
 

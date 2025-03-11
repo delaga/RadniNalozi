@@ -142,8 +142,7 @@ export default function RadniNaloziDodaj(){
             radnihSati: podaci.get('radnihSati') ? parseFloat(podaci.get('radnihSati')) : null,
             napomena: podaci.get('napomena').trim() === '' ? null : podaci.get('napomena').trim(),
             poslovi: dodaniPoslovi.map(p => ({ 
-                sifra: p.sifra, 
-                kolicina: p.kolicina 
+                sifra: p.sifra
             })),
             troskovi: dodaniTroskovi.map(t => ({ 
                 sifra: t.sifra, 
@@ -218,17 +217,7 @@ export default function RadniNaloziDodaj(){
                     </Form.Select>
                 </Form.Group>
             </Col>
-            <Col md={4}>
-                <Form.Group controlId="kolicinaPosla">
-                    <Form.Label>Količina</Form.Label>
-                    <Form.Control 
-                        type="number" 
-                        min="1" 
-                        value={kolicinaPosao} 
-                        onChange={(e) => setKolicinaPosao(parseInt(e.target.value))} 
-                    />
-                </Form.Group>
-            </Col>
+            
             <Col md={2} className="d-flex align-items-end">
                 <Button variant="primary" onClick={dodajPosao} className="mb-3">
                     Dodaj

@@ -98,11 +98,20 @@ namespace Backend.Controllers
                 }
 
                 var radniNalog = _mapper.Map<RadniNalog>(dto);
+                foreach (var posao in dto.Poslovi)
+                {
+                    var posaoBaza = _context.Poslovi.Find(posao.sifra);
+                    if (posaoBaza != null)
+                    {
+                        radniNalog.Poslovi.Add(posaoBaza);
+                    }
+                }
                 radniNalog.Djelatnik = djelatnik;
                 radniNalog.Klijent = klijent;
                 _context.RadniNalozi.Add(radniNalog);
 
                 _context.SaveChanges();
+
                 return StatusCode(StatusCodes.Status201Created, _mapper.Map<RadniNalogDTORead>(radniNalog));
             }
             catch (Exception e)
