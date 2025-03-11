@@ -5,6 +5,8 @@ import RadniNalogService from "../../services/RadniNalogService";
 import { useEffect, useState } from "react";
 import DjelatnikService from "../../services/DjelatnikService";
 import KlijentService from "../../services/KlijentService";
+import PosaoService from "../../services/PosaoService";
+import TrosakService from "../../services/TrosakService";
 import moment from "moment";
 
 
@@ -14,6 +16,16 @@ export default function RadniNaloziPromjena(){
     const [radniNalog, setRadniNalog] = useState({});
     const [djelatnici, setDjelatnici] = useState([]);
     const [klijenti, setKlijenti] = useState([]);
+    const [poslovi, setPoslovi] = useState([]);
+    const [troskovi, setTroskovi] = useState([]);
+    const [odabraniPosao, setOdabraniPosao] = useState('');
+    const [kolicinaPosao, setKolicinaPosao] = useState(1);
+    const [odabraniTrosak, setOdabraniTrosak] = useState('');
+    const [kolicinaTrosak, setKolicinaTrosak] = useState(1);
+    const [dodaniPoslovi, setDodaniPoslovi] = useState([]);
+    const [dodaniTroskovi, setDodaniTroskovi] = useState([]);
+    const [postojeciPoslovi, setPostojeciPoslovi] = useState([]);
+    const [postojeciTroskovi, setPostojeciTroskovi] = useState([]);
     const routeParams = useParams();
 
     async function dohvatiRadniNalog(){
@@ -40,18 +52,108 @@ export default function RadniNaloziPromjena(){
         setKlijenti(odgovor);
     }
 
+    async function dohvatiPoslovi(){
+        const odgovor = await PosaoService.get();
+        setPoslovi(odgovor);
+    }
+
+    async function dohvatiTroskovi(){
+        const odgovor = await TrosakService.get();
+        setTroskovi(odgovor);
+    }
+
+    async function dohvatiPostojecePoslove(){
+        const odgovor = await RadniNalogService.getPoslovi(routeParams.sifra);
+        setPostojeciPoslovi(odgovor || []);
+    }
+
+    async function dohvatiPostojeceTroskove(){
+        const odgovor = await RadniNalogService.getTroskovi(routeParams.sifra);
+        setPostojeciTroskovi(odgovor || []);
+    }
+
     useEffect(()=>{
         dohvatiRadniNalog();
         dohvatiDjelatnici();
         dohvatiKlijenti();
+        dohvatiPoslovi();
+        dohvatiTroskovi();
+        dohvatiPostojecePoslove();
+        dohvatiPostojeceTroskove();
     },[]);
 
+    function dodajPosao() {
+        if (!odabraniPosao) return;
+        
+        const posao = poslovi.find(p => p.sifra === parseInt(odabraniPosao));
+        if (!posao) return;
+        
+        const noviPosao = {
+            sifra: posao.sifra,
+            naziv: posao.nazivPosla,
+            kolicina: kolicinaPosao,
+            vrijednost: posao.vrijednost
+        };
+        
+        setDodaniPoslovi([...dodaniPoslovi, noviPosao]);
+        setOdabraniPosao('');
+        setKolicinaPosao(1);
+    }
+
+    function dodajTrosak() {
+        if (!odabraniTrosak) return;
+        
+        const trosak = troskovi.find(t => t.sifra === parseInt(odabraniTrosak));
+        if (!trosak) return;
+        
+        const noviTrosak = {
+            sifra: trosak.sifra,
+            naziv: trosak.naziv,
+            kolicina: kolicinaTrosak,
+            vrsta: trosak.vrsta,
+            vrstaNaziv: trosak.vrstaNaziv,
+            cijena: trosak.cijena
+        };
+        
+        setDodaniTroskovi([...dodaniTroskovi, noviTrosak]);
+        setOdabraniTrosak('');
+        setKolicinaTrosak(1);
+    }
+
+    function ukloniPosao(sifra) {
+        setDodaniPoslovi(dodaniPoslovi.filter(p => p.sifra !== sifra));
+    }
+
+    function ukloniTrosak(sifra) {
+        setDodaniTroskovi(dodaniTroskovi.filter(t => t.sifra !== sifra));
+    }
+
     async function promjena(radniNalog){
+        // Prvo ažuriramo radni nalog
         const odgovor = await RadniNalogService.promjena(routeParams.sifra, radniNalog);
         if(odgovor.greska){
             alert(odgovor.poruka)
             return
         }
+
+        // Dodavanje novih poslova na radni nalog
+        for (const posao of dodaniPoslovi) {
+            try {
+                await RadniNalogService.dodajPosao(routeParams.sifra, posao.sifra, posao.kolicina);
+            } catch (error) {
+                console.error("Greška kod dodavanja posla:", error);
+            }
+        }
+
+        // Dodavanje novih troškova na radni nalog
+        for (const trosak of dodaniTroskovi) {
+            try {
+                await RadniNalogService.dodajTrosak(routeParams.sifra, trosak.sifra, trosak.kolicina);
+            } catch (error) {
+                console.error("Greška kod dodavanja troška:", error);
+            }
+        }
+
         navigate(RouteNames.RADNINALOG_PREGLED)
     }
 
@@ -66,7 +168,15 @@ export default function RadniNaloziPromjena(){
             vrijemePocetka: podaci.get('vrijemePocetka') ? new Date(podaci.get('vrijemePocetka')).toISOString() : null,
             vrijemeZavrsetka: podaci.get('vrijemeZavrsetka') ? new Date(podaci.get('vrijemeZavrsetka')).toISOString() : null,
             radnihSati: podaci.get('radnihSati') ? parseFloat(podaci.get('radnihSati')) : null,
-            napomena: podaci.get('napomena').trim() === '' ? null : podaci.get('napomena').trim()
+            napomena: podaci.get('napomena').trim() === '' ? null : podaci.get('napomena').trim(),
+            poslovi: dodaniPoslovi.map(p => ({ 
+                sifra: p.sifra, 
+                kolicina: p.kolicina 
+            })),
+            troskovi: dodaniTroskovi.map(t => ({ 
+                sifra: t.sifra, 
+                kolicina: t.kolicina 
+            }))
         };
 
         promjena(updatedRadniNalog);
@@ -134,6 +244,146 @@ export default function RadniNaloziPromjena(){
                 defaultValue={radniNalog.napomena} 
             />
         </Form.Group>
+
+        <hr/>
+
+        {/* Postojeći poslovi */}
+        <h4>Postojeći poslovi</h4>
+        {postojeciPoslovi.length > 0 ? (
+            <div className="mb-3">
+                <ul className="list-group">
+                    {postojeciPoslovi.map((p, index) => (
+                        <li key={index} className="list-group-item">
+                            {p.nazivPosla} - Vrijednost: {p.vrijednost}
+                        </li>
+                    ))}
+                </ul>
+            </div>
+        ) : (
+            <p>Nema postojećih poslova za ovaj radni nalog</p>
+        )}
+
+        {/* Dodavanje poslova */}
+        <h4>Dodavanje poslova</h4>
+        <Row className="mb-3">
+            <Col md={6}>
+                <Form.Group controlId="odabirPosla">
+                    <Form.Label>Odaberi posao</Form.Label>
+                    <Form.Select 
+                        value={odabraniPosao} 
+                        onChange={(e) => setOdabraniPosao(e.target.value)}
+                    >
+                        <option value="">Odaberite posao</option>
+                        {poslovi && poslovi.map((p, index) => (
+                            <option key={index} value={p.sifra}>{p.nazivPosla}</option>
+                        ))}
+                    </Form.Select>
+                </Form.Group>
+            </Col>
+            <Col md={4}>
+                <Form.Group controlId="kolicinaPosla">
+                    <Form.Label>Količina</Form.Label>
+                    <Form.Control 
+                        type="number" 
+                        min="1" 
+                        value={kolicinaPosao} 
+                        onChange={(e) => setKolicinaPosao(parseInt(e.target.value))} 
+                    />
+                </Form.Group>
+            </Col>
+            <Col md={2} className="d-flex align-items-end">
+                <Button variant="primary" onClick={dodajPosao} className="mb-3">
+                    Dodaj
+                </Button>
+            </Col>
+        </Row>
+
+        {/* Prikaz dodanih poslova */}
+        {dodaniPoslovi.length > 0 && (
+            <div className="mb-3">
+                <h5>Novi poslovi za dodati:</h5>
+                <ul className="list-group">
+                    {dodaniPoslovi.map((p, index) => (
+                        <li key={index} className="list-group-item d-flex justify-content-between align-items-center">
+                            {p.naziv} - Količina: {p.kolicina}
+                            <Button variant="danger" size="sm" onClick={() => ukloniPosao(p.sifra)}>
+                                Ukloni
+                            </Button>
+                        </li>
+                    ))}
+                </ul>
+            </div>
+        )}
+
+        <hr/>
+
+        {/* Postojeći troškovi */}
+        <h4>Postojeći troškovi</h4>
+        {postojeciTroskovi.length > 0 ? (
+            <div className="mb-3">
+                <ul className="list-group">
+                    {postojeciTroskovi.map((t, index) => (
+                        <li key={index} className="list-group-item">
+                            {t.naziv} ({t.vrstaNaziv}) - Količina: {t.kolicina}, Cijena: {t.cijena} €, Ukupno: {t.ukupno} €
+                        </li>
+                    ))}
+                </ul>
+            </div>
+        ) : (
+            <p>Nema postojećih troškova za ovaj radni nalog</p>
+        )}
+
+        {/* Dodavanje troškova */}
+        <h4>Dodavanje troškova</h4>
+        <Row className="mb-3">
+            <Col md={6}>
+                <Form.Group controlId="odabirTroska">
+                    <Form.Label>Odaberi trošak</Form.Label>
+                    <Form.Select 
+                        value={odabraniTrosak} 
+                        onChange={(e) => setOdabraniTrosak(e.target.value)}
+                    >
+                        <option value="">Odaberite trošak</option>
+                        {troskovi && troskovi.map((t, index) => (
+                            <option key={index} value={t.sifra}>{t.naziv} ({t.vrstaNaziv})</option>
+                        ))}
+                    </Form.Select>
+                </Form.Group>
+            </Col>
+            <Col md={4}>
+                <Form.Group controlId="kolicinaTroska">
+                    <Form.Label>Količina</Form.Label>
+                    <Form.Control 
+                        type="number" 
+                        min="1" 
+                        value={kolicinaTrosak} 
+                        onChange={(e) => setKolicinaTrosak(parseInt(e.target.value))} 
+                    />
+                </Form.Group>
+            </Col>
+            <Col md={2} className="d-flex align-items-end">
+                <Button variant="primary" onClick={dodajTrosak} className="mb-3">
+                    Dodaj
+                </Button>
+            </Col>
+        </Row>
+
+        {/* Prikaz dodanih troškova */}
+        {dodaniTroskovi.length > 0 && (
+            <div className="mb-3">
+                <h5>Novi troškovi za dodati:</h5>
+                <ul className="list-group">
+                    {dodaniTroskovi.map((t, index) => (
+                        <li key={index} className="list-group-item d-flex justify-content-between align-items-center">
+                            {t.naziv} ({t.vrstaNaziv}) - Količina: {t.kolicina}
+                            <Button variant="danger" size="sm" onClick={() => ukloniTrosak(t.sifra)}>
+                                Ukloni
+                            </Button>
+                        </li>
+                    ))}
+                </ul>
+            </div>
+        )}
 
         <hr/>
 

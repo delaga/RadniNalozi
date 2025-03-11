@@ -56,6 +56,28 @@ async function getTroskovi(sifra){
 }
 
 
+async function dodajPosao(radniNalogSifra, posaoSifra, kolicina = 1) {
+    return HttpService.post(`/RadniNalog/${radniNalogSifra}/poslovi/${posaoSifra}`, { kolicina })
+    .then((odgovor) => {
+        return odgovor.data;
+    })
+    .catch((e) => {
+        console.error("Greška kod dodavanja posla:", e);
+        return { greska: true, poruka: 'Problem kod dodavanja posla' };
+    });
+}
+
+async function dodajTrosak(radniNalogSifra, trosakSifra, kolicina = 1) {
+    return HttpService.post(`/RadniNalog/${radniNalogSifra}/troskovi/${trosakSifra}`, { kolicina })
+    .then((odgovor) => {
+        return odgovor.data;
+    })
+    .catch((e) => {
+        console.error("Greška kod dodavanja troška:", e);
+        return { greska: true, poruka: 'Problem kod dodavanja troška' };
+    });
+}
+
 export default{
     get,
     getBySifra,
@@ -63,5 +85,7 @@ export default{
     promjena,
     obrisi,
     getPoslovi,
-    getTroskovi
+    getTroskovi,
+    dodajPosao,
+    dodajTrosak
 }
