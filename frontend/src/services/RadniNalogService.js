@@ -37,6 +37,21 @@ async function obrisi(sifra){
     .catch(()=>{return {greska: true, poruka:'Problem kod brisanja'}})
 }
 
+async function getPoslovi(sifra){
+    return await HttpService.get('/RadniNalog/' + sifra + '/poslovi')
+    .then((odgovor)=>{
+        return odgovor.data;
+    })
+    .catch((e)=>{return []})
+}
+
+async function getTroskovi(sifra){
+    return await HttpService.get('/RadniNalog/' + sifra + '/troskovi')
+    .then((odgovor)=>{
+        return odgovor.data;
+    })
+    .catch((e)=>{return []})
+}
 
 
 export default{
@@ -44,5 +59,7 @@ export default{
     getBySifra,
     dodaj,
     promjena,
-    obrisi
+    obrisi,
+    getPoslovi,
+    getTroskovi
 }
