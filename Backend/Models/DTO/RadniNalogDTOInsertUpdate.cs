@@ -5,7 +5,7 @@ namespace Backend.Models.DTO
         int KlijentSifra,
         DateTime? VrijemePocetka,
         DateTime? VrijemeZavrsetka,
-        List<RNPIU> Poslovi,
+        List<RNPIU> PosloviLista,
         decimal? RadnihSati,
         string? Napomena
     );

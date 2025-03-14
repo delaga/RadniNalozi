@@ -98,7 +98,7 @@ namespace Backend.Controllers
                 }
 
                 var radniNalog = _mapper.Map<RadniNalog>(dto);
-                foreach (var posao in dto.Poslovi)
+                foreach (var posao in dto.PosloviLista)
                 {
                     var posaoBaza = _context.Poslovi.Find(posao.sifra);
                     if (posaoBaza != null)
