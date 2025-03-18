@@ -17,7 +17,6 @@ export default function RadniNaloziDodaj(){
     const [poslovi, setPoslovi] = useState([]);
     const [troskovi, setTroskovi] = useState([]);
     const [odabraniPosao, setOdabraniPosao] = useState('');
-    const [kolicinaPosao, setKolicinaPosao] = useState(1);
     const [odabraniTrosak, setOdabraniTrosak] = useState('');
     const [kolicinaTrosak, setKolicinaTrosak] = useState(1);
     const [dodaniPoslovi, setDodaniPoslovi] = useState([]);
@@ -59,13 +58,11 @@ export default function RadniNaloziDodaj(){
         const noviPosao = {
             sifra: posao.sifra,
             naziv: posao.nazivPosla,
-            kolicina: kolicinaPosao,
             vrijednost: posao.vrijednost
         };
         
         setDodaniPoslovi([...dodaniPoslovi, noviPosao]);
         setOdabraniPosao('');
-        setKolicinaPosao(1);
     }
 
     function dodajTrosak() {
@@ -110,7 +107,7 @@ export default function RadniNaloziDodaj(){
             // Dodavanje poslova na radni nalog
             for (const posao of dodaniPoslovi) {
                 try {
-                    await RadniNalogService.dodajPosao(radniNalogSifra, posao.sifra, posao.kolicina);
+                    await RadniNalogService.dodajPosao(radniNalogSifra, posao.sifra);
                 } catch (error) {
                     console.error("Greška kod dodavanja posla:", error);
                 }
@@ -203,7 +200,7 @@ export default function RadniNaloziDodaj(){
         {/* Dodavanje poslova */}
         <h4>Dodavanje poslova</h4>
         <Row className="mb-3">
-            <Col md={6}>
+            <Col md={8}>
                 <Form.Group controlId="odabirPosla">
                     <Form.Label>Odaberi posao</Form.Label>
                     <Form.Select 
@@ -218,7 +215,7 @@ export default function RadniNaloziDodaj(){
                 </Form.Group>
             </Col>
             
-            <Col md={2} className="d-flex align-items-end">
+            <Col md={4} className="d-flex align-items-end">
                 <Button variant="primary" onClick={dodajPosao} className="mb-3">
                     Dodaj
                 </Button>
@@ -232,7 +229,7 @@ export default function RadniNaloziDodaj(){
                 <ul className="list-group">
                     {dodaniPoslovi.map((p, index) => (
                         <li key={index} className="list-group-item d-flex justify-content-between align-items-center">
-                            {p.naziv} - Količina: {p.kolicina}
+                            {p.naziv}
                             <Button variant="danger" size="sm" onClick={() => ukloniPosao(p.sifra)}>
                                 Ukloni
                             </Button>
