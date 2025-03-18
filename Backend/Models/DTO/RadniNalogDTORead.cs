@@ -7,6 +7,7 @@ namespace Backend.Models.DTO
         DateTime? VrijemePocetka,
         DateTime? VrijemeZavrsetka,
         decimal? RadnihSati,
-        string? Napomena
+        string? Napomena,
+        decimal UkupniTroskovi
         );
 }

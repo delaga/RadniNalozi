@@ -1,5 +1,7 @@
+using AutoMapper;
 using Backend.Data;
 using Backend.Models;
+using Backend.Models.DTO;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,11 +14,13 @@ namespace Backend.Controllers
         // koristimo dependency injection
         // 1. definiramo privatno svojstvo
         private readonly RadniNaloziContext _context;
+        private readonly IMapper _mapper;
 
         // 2. u konstruktoru postavljamo vrijednost
-        public TrosakController(RadniNaloziContext context)
+        public TrosakController(RadniNaloziContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         [HttpGet]
@@ -29,19 +33,7 @@ namespace Backend.Controllers
                     .Include(t => t.RadniNalogNavigation)
                     .ToList();
 
-                // Transform the data to include vrsta troska and radni nalog information
-                var result = troskovi.Select(t => new
-                {
-                    t.Sifra,
-                    t.Naziv,
-                    t.Vrsta,
-                    VrstaNaziv = t.VrstaNavigation?.Naziv,
-                    t.RadniNalog,
-                    RadniNalogInfo = t.RadniNalogNavigation != null ? $"RN-{t.RadniNalogNavigation.Sifra}" : "",
-                    t.Kolicina,
-                    t.Cijena,
-                    Ukupno = t.Kolicina * t.Cijena
-                });
+                var result = troskovi.Select(t => _mapper.Map<TrosakDTORead>(t));
 
                 return Ok(result);
             }
@@ -61,12 +53,17 @@ namespace Backend.Controllers
             }
             try
             {
-                var trosak = _context.Troskovi.Find(sifra);
+                var trosak = _context.Troskovi
+                    .Include(t => t.VrstaNavigation)
+                    .FirstOrDefault(t => t.Sifra == sifra);
+                
                 if (trosak == null)
                 {
                     return NotFound(new { poruka = $"Trošak s šifrom {sifra} ne postoji" });
                 }
-                return Ok(trosak);
+                
+                var trosakDTO = _mapper.Map<TrosakDTORead>(trosak);
+                return Ok(trosakDTO);
             }
             catch (Exception e)
             {
@@ -77,31 +74,37 @@ namespace Backend.Controllers
 
 
         [HttpPost]
-        public IActionResult Post(Trosak trosak)
+        public IActionResult Post(TrosakDTOInsertUpdate trosakDTO)
         {
             try
             {
                 // Check if VrstaTroska exists
-                var vrstaTroska = _context.VrsteTroskova.Find(trosak.Vrsta);
+                var vrstaTroska = _context.VrsteTroskova.Find(trosakDTO.Vrsta);
                 if (vrstaTroska == null)
                 {
-                    return BadRequest(new { poruka = $"Vrsta troška s šifrom {trosak.Vrsta} ne postoji" });
+                    return BadRequest(new { poruka = $"Vrsta troška s šifrom {trosakDTO.Vrsta} ne postoji" });
                 }
 
                 // Check if RadniNalog exists
-                var radniNalog = _context.RadniNalozi.Find(trosak.RadniNalog);
+                var radniNalog = _context.RadniNalozi.Find(trosakDTO.RadniNalog);
                 if (radniNalog == null)
                 {
-                    return BadRequest(new { poruka = $"Radni nalog s šifrom {trosak.RadniNalog} ne postoji" });
+                    return BadRequest(new { poruka = $"Radni nalog s šifrom {trosakDTO.RadniNalog} ne postoji" });
                 }
 
+                // Map DTO to entity
+                var trosak = _mapper.Map<Trosak>(trosakDTO);
+                
                 // Set navigation properties
                 trosak.VrstaNavigation = vrstaTroska;
                 trosak.RadniNalogNavigation = radniNalog;
 
                 _context.Troskovi.Add(trosak);
                 _context.SaveChanges();
-                return StatusCode(StatusCodes.Status201Created, trosak);
+                
+                // Return the created entity as DTO
+                var createdTrosakDTO = _mapper.Map<TrosakDTORead>(trosak);
+                return StatusCode(StatusCodes.Status201Created, createdTrosakDTO);
             }
             catch (Exception e)
             {
@@ -111,7 +114,7 @@ namespace Backend.Controllers
 
 
         [HttpPut("{sifra:int}")]
-        public IActionResult Put(int sifra, Trosak trosak)
+        public IActionResult Put(int sifra, TrosakDTOInsertUpdate trosakDTO)
         {
             try
             {
@@ -122,33 +125,32 @@ namespace Backend.Controllers
                 }
 
                 // Check if VrstaTroska exists
-                var vrstaTroska = _context.VrsteTroskova.Find(trosak.Vrsta);
+                var vrstaTroska = _context.VrsteTroskova.Find(trosakDTO.Vrsta);
                 if (vrstaTroska == null)
                 {
-                    return BadRequest(new { poruka = $"Vrsta troška s šifrom {trosak.Vrsta} ne postoji" });
+                    return BadRequest(new { poruka = $"Vrsta troška s šifrom {trosakDTO.Vrsta} ne postoji" });
                 }
 
                 // Check if RadniNalog exists
-                var radniNalog = _context.RadniNalozi.Find(trosak.RadniNalog);
+                var radniNalog = _context.RadniNalozi.Find(trosakDTO.RadniNalog);
                 if (radniNalog == null)
                 {
-                    return BadRequest(new { poruka = $"Radni nalog s šifrom {trosak.RadniNalog} ne postoji" });
+                    return BadRequest(new { poruka = $"Radni nalog s šifrom {trosakDTO.RadniNalog} ne postoji" });
                 }
 
-                // rucni mapping - kasnije automatika
-                trosakBaza.Naziv = trosak.Naziv;
-                trosakBaza.Vrsta = trosak.Vrsta;
-                trosakBaza.RadniNalog = trosak.RadniNalog;
-                trosakBaza.Kolicina = trosak.Kolicina;
-                trosakBaza.Cijena = trosak.Cijena;
-
+                // Map DTO to entity, preserving the ID
+                _mapper.Map(trosakDTO, trosakBaza);
+                
                 // Set navigation properties
                 trosakBaza.VrstaNavigation = vrstaTroska;
                 trosakBaza.RadniNalogNavigation = radniNalog;
 
                 _context.Troskovi.Update(trosakBaza);
                 _context.SaveChanges();
-                return Ok(trosakBaza);
+                
+                // Return the updated entity as DTO
+                var updatedTrosakDTO = _mapper.Map<TrosakDTORead>(trosakBaza);
+                return Ok(updatedTrosakDTO);
             }
             catch (Exception e)
             {

@@ -17,6 +17,7 @@ export default function RadniNaloziPregled(){
 
     async function dohvatiRadniNalozi(){
         const odgovor = await RadniNalogService.get()
+        console.log('Radni nalozi:', odgovor)
         setRadniNalozi(odgovor)
     }
 
@@ -30,6 +31,13 @@ export default function RadniNaloziPregled(){
             return 'Nije definirano'
         }
         return moment.utc(datum).format('DD. MM. YYYY. HH:mm')
+    }
+
+    function formatirajValutu(iznos) {
+        if (iznos === null || iznos === undefined) {
+            return '0.00 €';
+        }
+        return iznos.toFixed(2) + ' €';
     }
 
     function obrisi(sifra){
@@ -95,6 +103,7 @@ export default function RadniNaloziPregled(){
                     <th>Vrijeme početka</th>
                     <th>Vrijeme završetka</th>
                     <th>Radnih sati</th>
+                    <th>Ukupni troškovi</th>
                     <th>Napomena</th>
                     <th>Akcija</th>
                 </tr>
@@ -128,6 +137,10 @@ export default function RadniNaloziPregled(){
 
                         <td>
                             {rn.radnihSati}
+                        </td>
+
+                        <td>
+                            {formatirajValutu(rn.ukupniTroskovi)}
                         </td>
 
                         <td>
@@ -207,8 +220,8 @@ export default function RadniNaloziPregled(){
                                             <td>{trosak.naziv}</td>
                                             <td>{trosak.vrstaNaziv}</td>
                                             <td>{trosak.kolicina}</td>
-                                            <td>{trosak.cijena} €</td>
-                                            <td>{trosak.ukupno} €</td>
+                                            <td>{formatirajValutu(trosak.cijena)}</td>
+                                            <td>{formatirajValutu(trosak.ukupno)}</td>
                                         </tr>
                                     ))
                                 ) : (

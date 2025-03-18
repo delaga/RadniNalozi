@@ -28,7 +28,9 @@ namespace Backend.Mapping
                 .ForCtorParam("DjelatnikImeIPrezime",
                     opt => opt.MapFrom(src => src.Djelatnik.Ime + " " + src.Djelatnik.Prezime))
                 .ForCtorParam("KlijentNaziv",
-                    opt => opt.MapFrom(src => src.Klijent.Naziv));
+                    opt => opt.MapFrom(src => src.Klijent.Naziv))
+                .ForCtorParam("UkupniTroskovi",
+                    opt => opt.MapFrom(src => src.Troskovi.Sum(t => t.Kolicina * t.Cijena)));
             
             CreateMap<RadniNalogDTOInsertUpdate, RadniNalog>();
 
@@ -43,6 +45,10 @@ namespace Backend.Mapping
                 // Izračun ukupne cijene troška (količina * cijena)
                 .ForCtorParam("Ukupno",
                     opt => opt.MapFrom(src => src.Kolicina * src.Cijena));
+            
+            // Mapiranje za dodavanje i ažuriranje troška
+            CreateMap<TrosakDTOInsertUpdate, Trosak>();
+            CreateMap<Trosak, TrosakDTOInsertUpdate>();
         }
     }
 }
