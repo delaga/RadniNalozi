@@ -6,6 +6,7 @@ namespace Backend.Models.DTO
         DateTime? VrijemePocetka,
         DateTime? VrijemeZavrsetka,
         List<RNPIU> PosloviLista,
+        List<TrosakDTOInsertUpdate> TroskoviLista,
         decimal? RadnihSati,
         string? Napomena
     );
