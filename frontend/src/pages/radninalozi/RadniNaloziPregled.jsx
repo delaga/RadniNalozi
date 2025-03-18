@@ -104,6 +104,7 @@ export default function RadniNaloziPregled(){
                     <th>Vrijeme završetka</th>
                     <th>Radnih sati</th>
                     <th>Ukupni troškovi</th>
+                    <th>Ukupno poslovi</th>
                     <th>Napomena</th>
                     <th>Akcija</th>
                 </tr>
@@ -141,6 +142,10 @@ export default function RadniNaloziPregled(){
 
                         <td>
                             {formatirajValutu(rn.ukupniTroskovi)}
+                        </td>
+
+                        <td>
+                            {formatirajValutu(rn.ukupnoPoslovi)}
                         </td>
 
                         <td>
@@ -187,7 +192,7 @@ export default function RadniNaloziPregled(){
                                     poslovi.map((posao, index) => (
                                         <tr key={index}>
                                             <td>{posao.nazivPosla}</td>
-                                            <td>{posao.vrijednost}</td>
+                                            <td>{formatirajValutu(posao.vrijednost)}</td>
                                         </tr>
                                     ))
                                 ) : (

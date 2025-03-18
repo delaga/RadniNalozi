@@ -30,7 +30,9 @@ namespace Backend.Mapping
                 .ForCtorParam("KlijentNaziv",
                     opt => opt.MapFrom(src => src.Klijent.Naziv))
                 .ForCtorParam("UkupniTroskovi",
-                    opt => opt.MapFrom(src => src.Troskovi.Sum(t => t.Kolicina * t.Cijena)));
+                    opt => opt.MapFrom(src => src.Troskovi.Sum(t => t.Kolicina * t.Cijena)))
+                .ForCtorParam("UkupnoPoslovi",
+                    opt => opt.MapFrom(src => src.Poslovi.Sum(p => p.Vrijednost)));
             
             CreateMap<RadniNalogDTOInsertUpdate, RadniNalog>();
 

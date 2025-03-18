@@ -25,6 +25,7 @@ namespace Backend.Controllers
                     .Include(r => r.Klijent)
                     .Include(r => r.Djelatnik)
                     .Include(r => r.Troskovi)
+                    .Include(r => r.Poslovi)
                     .ToList();
 
                 return Ok(_mapper.Map<List<RadniNalogDTORead>>(radniNalozi));
@@ -54,6 +55,7 @@ namespace Backend.Controllers
                     .Include(r => r.Klijent)
                     .Include(r => r.Djelatnik)
                     .Include(r => r.Troskovi)
+                    .Include(r => r.Poslovi)
                     .FirstOrDefault(r => r.Sifra == sifra);
                     
                 if (radniNalog == null)
