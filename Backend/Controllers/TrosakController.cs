@@ -95,6 +95,10 @@ namespace Backend.Controllers
                     return BadRequest(new { poruka = $"Radni nalog s šifrom {trosak.RadniNalog} ne postoji" });
                 }
 
+                // Set navigation properties
+                trosak.VrstaNavigation = vrstaTroska;
+                trosak.RadniNalogNavigation = radniNalog;
+
                 _context.Troskovi.Add(trosak);
                 _context.SaveChanges();
                 return StatusCode(StatusCodes.Status201Created, trosak);
@@ -137,6 +141,10 @@ namespace Backend.Controllers
                 trosakBaza.RadniNalog = trosak.RadniNalog;
                 trosakBaza.Kolicina = trosak.Kolicina;
                 trosakBaza.Cijena = trosak.Cijena;
+
+                // Set navigation properties
+                trosakBaza.VrstaNavigation = vrstaTroska;
+                trosakBaza.RadniNalogNavigation = radniNalog;
 
                 _context.Troskovi.Update(trosakBaza);
                 _context.SaveChanges();

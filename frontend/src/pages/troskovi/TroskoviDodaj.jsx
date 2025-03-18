@@ -29,28 +29,55 @@ export default function TroskoviDodaj(){
     },[]);
 
     async function dodaj(trosak){
-        const odgovor = await TrosakService.dodaj(trosak);
-        if(odgovor.greska){
-            alert(odgovor.poruka)
-            return
+        try {
+            console.log("Podaci za dodavanje troška:", trosak);
+            const odgovor = await TrosakService.dodaj(trosak);
+            if(odgovor.greska){
+                console.error("Greška kod dodavanja troška:", odgovor.poruka);
+                alert(odgovor.poruka);
+                return;
+            }
+            alert("Trošak je uspješno dodan!");
+            navigate(RouteNames.TROSAK_PREGLED);
+        } catch (error) {
+            console.error("Greška kod dodavanja troška:", error);
+            alert("Došlo je do greške prilikom dodavanja troška.");
         }
-        navigate(RouteNames.TROSAK_PREGLED)
     }
 
     function odradiSubmit(e){ // e je event
         e.preventDefault(); // nemoj odraditi zahtjev na server pa standardnom načinu
 
-        let podaci = new FormData(e.target);
+        try {
+            let podaci = new FormData(e.target);
 
-        const trosak = {
-            naziv: podaci.get('naziv'),
-            vrsta: parseInt(podaci.get('vrsta')),
-            radniNalog: parseInt(podaci.get('radniNalog')),
-            kolicina: parseFloat(podaci.get('kolicina')),
-            cijena: parseFloat(podaci.get('cijena')),
-        };
+            // Provjera da li su svi podaci uneseni
+            if (!podaci.get('naziv') || !podaci.get('vrsta') || !podaci.get('radniNalog') || 
+                !podaci.get('kolicina') || !podaci.get('cijena')) {
+                alert("Molimo popunite sva polja.");
+                return;
+            }
 
-        dodaj(trosak);
+            const trosak = {
+                naziv: podaci.get('naziv').trim(),
+                vrsta: parseInt(podaci.get('vrsta')),
+                radniNalog: parseInt(podaci.get('radniNalog')),
+                kolicina: parseFloat(podaci.get('kolicina')),
+                cijena: parseFloat(podaci.get('cijena')),
+            };
+
+            // Dodatna validacija
+            if (isNaN(trosak.vrsta) || isNaN(trosak.radniNalog) || 
+                isNaN(trosak.kolicina) || isNaN(trosak.cijena)) {
+                alert("Molimo unesite ispravne vrijednosti za sva polja.");
+                return;
+            }
+
+            dodaj(trosak);
+        } catch (error) {
+            console.error("Greška kod obrade forme:", error);
+            alert("Došlo je do greške prilikom obrade forme.");
+        }
     }
 
     return(

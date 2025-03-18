@@ -20,21 +20,30 @@ async function getBySifra(sifra){
 
 
 async function dodaj(trosak){
-    return HttpService.post('/trosak',trosak)
+    return HttpService.post('/Trosak',trosak)
     .then(()=>{return {greska: false, poruka: 'Dodano'}})
-    .catch(()=>{return {greska: true, poruka:'Problem kod dodavanja'}})
+    .catch((e)=>{
+        console.error("Greška kod dodavanja troška:", e);
+        return {greska: true, poruka:'Problem kod dodavanja'}
+    })
 }
 
 async function promjena(sifra,trosak){
-    return HttpService.put('/trosak/'+sifra,trosak)
+    return HttpService.put('/Trosak/'+sifra,trosak)
     .then(()=>{return {greska: false, poruka: 'Promjenjeno'}})
-    .catch(()=>{return {greska: true, poruka:'Problem kod promjene'}})
+    .catch((e)=>{
+        console.error("Greška kod promjene troška:", e);
+        return {greska: true, poruka:'Problem kod promjene'}
+    })
 }
 
 async function obrisi(sifra){
-    return HttpService.delete('/trosak/'+sifra)
+    return HttpService.delete('/Trosak/'+sifra)
     .then(()=>{return {greska: false, poruka: 'Obrisano'}})
-    .catch(()=>{return {greska: true, poruka:'Problem kod brisanja'}})
+    .catch((e)=>{
+        console.error("Greška kod brisanja troška:", e);
+        return {greska: true, poruka:'Problem kod brisanja'}
+    })
 }
 
 

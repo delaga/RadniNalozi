@@ -10,12 +10,12 @@ namespace Backend.Models
         public int Vrsta { get; set; }
         [JsonIgnore]
         [ForeignKey("Vrsta")]
-        public VrstaTroska VrstaNavigation { get; set; }
+        public VrstaTroska? VrstaNavigation { get; set; }
 
         public int RadniNalog { get; set; }
         [JsonIgnore]
         [ForeignKey("RadniNalog")]
-        public RadniNalog RadniNalogNavigation { get; set; }
+        public RadniNalog? RadniNalogNavigation { get; set; }
 
         public decimal Kolicina { get; set; }
 

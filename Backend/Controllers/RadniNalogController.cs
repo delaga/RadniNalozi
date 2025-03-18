@@ -349,7 +349,7 @@ namespace Backend.Controllers
         /// <param name="sifraTrosak">Šifra troška</param>
         /// <returns>Ažurirana lista troškova</returns>
         [HttpPost("{sifraRadniNalog:int}/troskovi/{sifraTrosak:int}")]
-        public IActionResult DodajTrosakNaRadniNalog(int sifraRadniNalog, int sifraTrosak)
+        public IActionResult DodajTrosakNaRadniNalog(int sifraRadniNalog, int sifraTrosak, [FromBody] object data)
         {
             if (sifraRadniNalog <= 0 || sifraTrosak <= 0)
             {
@@ -368,26 +368,33 @@ namespace Backend.Controllers
                     return NotFound(new { poruka = $"Radni nalog s šifrom {sifraRadniNalog} ne postoji" });
                 }
 
-                var trosak = _context.Troskovi.Find(sifraTrosak);
-                if (trosak == null)
+                var originalTrosak = _context.Troskovi
+                    .Include(t => t.VrstaNavigation)
+                    .FirstOrDefault(t => t.Sifra == sifraTrosak);
+                
+                if (originalTrosak == null)
                 {
                     return NotFound(new { poruka = $"Trošak s šifrom {sifraTrosak} ne postoji" });
                 }
 
-                // Check if the trosak is already associated with this radni nalog
-                if (trosak.RadniNalog != sifraRadniNalog)
+                // Kreiraj novi trošak s istim podacima kao originalni
+                var noviTrosak = new Trosak
                 {
-                    // Update the trosak to be associated with this radni nalog
-                    trosak.RadniNalog = sifraRadniNalog;
-                    _context.Troskovi.Update(trosak);
-                }
+                    Naziv = originalTrosak.Naziv,
+                    Vrsta = originalTrosak.Vrsta,
+                    RadniNalog = sifraRadniNalog,
+                    Kolicina = originalTrosak.Kolicina,
+                    Cijena = originalTrosak.Cijena,
+                    VrstaNavigation = originalTrosak.VrstaNavigation,
+                    RadniNalogNavigation = radniNalog
+                };
 
-                // Make sure the trosak is in the collection
-                if (!radniNalog.Troskovi.Any(t => t.Sifra == sifraTrosak))
-                {
-                    radniNalog.Troskovi.Add(trosak);
-                }
+                // Dodaj novi trošak u bazu
+                _context.Troskovi.Add(noviTrosak);
+                _context.SaveChanges();
 
+                // Dodaj novi trošak u kolekciju radnog naloga
+                radniNalog.Troskovi.Add(noviTrosak);
                 _context.SaveChanges();
 
                 return Ok(_mapper.Map<List<TrosakDTORead>>(radniNalog.Troskovi));

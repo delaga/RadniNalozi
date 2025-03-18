@@ -129,32 +129,63 @@ export default function RadniNaloziPromjena(){
     }
 
     async function promjena(radniNalog){
-        // Prvo ažuriramo radni nalog
-        const odgovor = await RadniNalogService.promjena(routeParams.sifra, radniNalog);
-        if(odgovor.greska){
-            alert(odgovor.poruka)
-            return
-        }
-
-        // Dodavanje novih poslova na radni nalog
-        for (const posao of dodaniPoslovi) {
-            try {
-                await RadniNalogService.dodajPosao(routeParams.sifra, posao.sifra, posao.kolicina);
-            } catch (error) {
-                console.error("Greška kod dodavanja posla:", error);
+        try {
+            // Prvo ažuriramo radni nalog
+            const odgovor = await RadniNalogService.promjena(routeParams.sifra, radniNalog);
+            if(odgovor.greska){
+                alert(odgovor.poruka);
+                return;
             }
-        }
 
-        // Dodavanje novih troškova na radni nalog
-        for (const trosak of dodaniTroskovi) {
-            try {
-                await RadniNalogService.dodajTrosak(routeParams.sifra, trosak.sifra, trosak.kolicina);
-            } catch (error) {
-                console.error("Greška kod dodavanja troška:", error);
+            // Dodavanje novih poslova na radni nalog
+            let uspjesnoDodaniPoslovi = 0;
+            for (const posao of dodaniPoslovi) {
+                try {
+                    const rezultat = await RadniNalogService.dodajPosao(routeParams.sifra, posao.sifra, posao.kolicina);
+                    if (rezultat && !rezultat.greska) {
+                        uspjesnoDodaniPoslovi++;
+                    } else if (rezultat && rezultat.greska) {
+                        console.error("Greška kod dodavanja posla:", rezultat.poruka);
+                    }
+                } catch (error) {
+                    console.error("Greška kod dodavanja posla:", error);
+                }
             }
-        }
 
-        navigate(RouteNames.RADNINALOG_PREGLED)
+            // Dodavanje novih troškova na radni nalog
+            let uspjesnoDodaniTroskovi = 0;
+            for (const trosak of dodaniTroskovi) {
+                try {
+                    const rezultat = await RadniNalogService.dodajTrosak(routeParams.sifra, trosak.sifra, trosak.kolicina);
+                    if (rezultat && !rezultat.greska) {
+                        uspjesnoDodaniTroskovi++;
+                    } else if (rezultat && rezultat.greska) {
+                        console.error("Greška kod dodavanja troška:", rezultat.poruka);
+                    }
+                } catch (error) {
+                    console.error("Greška kod dodavanja troška:", error);
+                }
+            }
+
+            // Prikaži poruku o uspjehu
+            if (dodaniPoslovi.length > 0 || dodaniTroskovi.length > 0) {
+                let poruka = "Radni nalog je ažuriran.";
+                if (uspjesnoDodaniPoslovi > 0) {
+                    poruka += ` Dodano ${uspjesnoDodaniPoslovi} od ${dodaniPoslovi.length} poslova.`;
+                }
+                if (uspjesnoDodaniTroskovi > 0) {
+                    poruka += ` Dodano ${uspjesnoDodaniTroskovi} od ${dodaniTroskovi.length} troškova.`;
+                }
+                alert(poruka);
+            } else {
+                alert("Radni nalog je uspješno ažuriran.");
+            }
+
+            navigate(RouteNames.RADNINALOG_PREGLED);
+        } catch (error) {
+            console.error("Greška kod ažuriranja radnog naloga:", error);
+            alert("Došlo je do greške prilikom ažuriranja radnog naloga.");
+        }
     }
 
     function odradiSubmit(e){ // e je event

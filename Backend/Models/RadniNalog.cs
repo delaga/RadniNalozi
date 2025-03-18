@@ -25,6 +25,7 @@ namespace Backend.Models
         public ICollection<Posao> Poslovi { get; set; } = [];
 
         // Kolekcija troškova vezanih za radni nalog
+        [JsonIgnore]
         public ICollection<Trosak> Troskovi { get; set; } = [];
     }
 }
