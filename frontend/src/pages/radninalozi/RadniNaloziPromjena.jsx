@@ -7,6 +7,7 @@ import DjelatnikService from "../../services/DjelatnikService";
 import KlijentService from "../../services/KlijentService";
 import PosaoService from "../../services/PosaoService";
 import TrosakService from "../../services/TrosakService";
+import VrstaTroskaService from "../../services/VrstaTroskaService";
 import moment from "moment";
 
 
@@ -17,10 +18,12 @@ export default function RadniNaloziPromjena(){
     const [djelatnici, setDjelatnici] = useState([]);
     const [klijenti, setKlijenti] = useState([]);
     const [poslovi, setPoslovi] = useState([]);
-    const [troskovi, setTroskovi] = useState([]);
+    const [vrsteTroskova, setVrsteTroskova] = useState([]);
     const [odabraniPosao, setOdabraniPosao] = useState('');
-    const [odabraniTrosak, setOdabraniTrosak] = useState('');
+    const [odabranaVrstaTroska, setOdabranaVrstaTroska] = useState('');
+    const [nazivTroska, setNazivTroska] = useState('');
     const [kolicinaTrosak, setKolicinaTrosak] = useState(1);
+    const [cijenaTrosak, setCijenaTrosak] = useState(0);
     const [dodaniPoslovi, setDodaniPoslovi] = useState([]);
     const [dodaniTroskovi, setDodaniTroskovi] = useState([]);
     const [postojeciPoslovi, setPostojeciPoslovi] = useState([]);
@@ -56,9 +59,9 @@ export default function RadniNaloziPromjena(){
         setPoslovi(odgovor);
     }
 
-    async function dohvatiTroskovi(){
-        const odgovor = await TrosakService.get();
-        setTroskovi(odgovor);
+    async function dohvatiVrsteTroskova(){
+        const odgovor = await VrstaTroskaService.get();
+        setVrsteTroskova(odgovor);
     }
 
     async function dohvatiPostojecePoslove(){
@@ -76,7 +79,7 @@ export default function RadniNaloziPromjena(){
         dohvatiDjelatnici();
         dohvatiKlijenti();
         dohvatiPoslovi();
-        dohvatiTroskovi();
+        dohvatiVrsteTroskova();
         dohvatiPostojecePoslove();
         dohvatiPostojeceTroskove();
     },[]);
@@ -98,23 +101,27 @@ export default function RadniNaloziPromjena(){
     }
 
     function dodajTrosak() {
-        if (!odabraniTrosak) return;
+        if (!odabranaVrstaTroska || !nazivTroska || kolicinaTrosak <= 0 || cijenaTrosak <= 0) {
+            alert("Molimo popunite sva polja za trošak.");
+            return;
+        }
         
-        const trosak = troskovi.find(t => t.sifra === parseInt(odabraniTrosak));
-        if (!trosak) return;
+        const vrstaTroska = vrsteTroskova.find(vt => vt.sifra === parseInt(odabranaVrstaTroska));
+        if (!vrstaTroska) return;
         
         const noviTrosak = {
-            sifra: trosak.sifra,
-            naziv: trosak.naziv,
+            naziv: nazivTroska,
             kolicina: kolicinaTrosak,
-            vrsta: trosak.vrsta,
-            vrstaNaziv: trosak.vrstaNaziv,
-            cijena: trosak.cijena
+            vrsta: parseInt(odabranaVrstaTroska),
+            vrstaNaziv: vrstaTroska.naziv,
+            cijena: cijenaTrosak
         };
         
         setDodaniTroskovi([...dodaniTroskovi, noviTrosak]);
-        setOdabraniTrosak('');
+        setOdabranaVrstaTroska('');
+        setNazivTroska('');
         setKolicinaTrosak(1);
+        setCijenaTrosak(0);
     }
 
     function ukloniPosao(sifra) {
@@ -153,10 +160,17 @@ export default function RadniNaloziPromjena(){
             let uspjesnoDodaniTroskovi = 0;
             for (const trosak of dodaniTroskovi) {
                 try {
-                    const rezultat = await RadniNalogService.dodajTrosak(routeParams.sifra, trosak.sifra, trosak.kolicina);
-                    if (rezultat && !rezultat.greska) {
+                    const noviTrosak = {
+                        naziv: trosak.naziv,
+                        vrsta: trosak.vrsta,
+                        radniNalog: parseInt(routeParams.sifra),
+                        kolicina: trosak.kolicina,
+                        cijena: trosak.cijena
+                    };
+                    const rezultat = await TrosakService.dodaj(noviTrosak);
+                    if (!rezultat.greska) {
                         uspjesnoDodaniTroskovi++;
-                    } else if (rezultat && rezultat.greska) {
+                    } else {
                         console.error("Greška kod dodavanja troška:", rezultat.poruka);
                     }
                 } catch (error) {
@@ -353,33 +367,62 @@ export default function RadniNaloziPromjena(){
         <h4>Dodavanje troškova</h4>
         <Row className="mb-3">
             <Col md={6}>
-                <Form.Group controlId="odabirTroska">
-                    <Form.Label>Odaberi trošak</Form.Label>
+                <Form.Group controlId="odabirVrsteTroska">
+                    <Form.Label>Vrsta troška</Form.Label>
                     <Form.Select 
-                        value={odabraniTrosak} 
-                        onChange={(e) => setOdabraniTrosak(e.target.value)}
+                        value={odabranaVrstaTroska} 
+                        onChange={(e) => setOdabranaVrstaTroska(e.target.value)}
                     >
-                        <option value="">Odaberite trošak</option>
-                        {troskovi && troskovi.map((t, index) => (
-                            <option key={index} value={t.sifra}>{t.naziv} ({t.vrstaNaziv})</option>
+                        <option value="">Odaberite vrstu troška</option>
+                        {vrsteTroskova && vrsteTroskova.map((vt, index) => (
+                            <option key={index} value={vt.sifra}>{vt.naziv}</option>
                         ))}
                     </Form.Select>
                 </Form.Group>
             </Col>
-            <Col md={4}>
+        </Row>
+        <Row className="mb-3">
+            <Col md={12}>
+                <Form.Group controlId="nazivTroska">
+                    <Form.Label>Naziv troška</Form.Label>
+                    <Form.Control 
+                        type="text" 
+                        value={nazivTroska} 
+                        onChange={(e) => setNazivTroska(e.target.value)} 
+                    />
+                </Form.Group>
+            </Col>
+        </Row>
+        <Row className="mb-3">
+            <Col md={6}>
                 <Form.Group controlId="kolicinaTroska">
                     <Form.Label>Količina</Form.Label>
                     <Form.Control 
                         type="number" 
-                        min="1" 
+                        min="0.01" 
+                        step="0.01"
                         value={kolicinaTrosak} 
-                        onChange={(e) => setKolicinaTrosak(parseInt(e.target.value))} 
+                        onChange={(e) => setKolicinaTrosak(parseFloat(e.target.value))} 
                     />
                 </Form.Group>
             </Col>
-            <Col md={2} className="d-flex align-items-end">
+            <Col md={6}>
+                <Form.Group controlId="cijenaTroska">
+                    <Form.Label>Cijena</Form.Label>
+                    <Form.Control 
+                        type="number" 
+                        min="0.01" 
+                        step="0.01"
+                        value={cijenaTrosak} 
+                        onChange={(e) => setCijenaTrosak(parseFloat(e.target.value))} 
+                    />
+                </Form.Group>
+            </Col>
+        </Row>
+        <Row className="mb-3">
+            <Col md={12} className="d-flex justify-content-end">
                 <Button variant="primary" onClick={dodajTrosak} className="mb-3">
-                    Dodaj
+                    Dodaj trošak
                 </Button>
             </Col>
         </Row>
@@ -391,7 +434,7 @@ export default function RadniNaloziPromjena(){
                 <ul className="list-group">
                     {dodaniTroskovi.map((t, index) => (
                         <li key={index} className="list-group-item d-flex justify-content-between align-items-center">
-                            {t.naziv} ({t.vrstaNaziv}) - Količina: {t.kolicina}
+                            {t.naziv} ({t.vrstaNaziv}) - Količina: {t.kolicina}, Cijena: {t.cijena} €, Ukupno: {(t.kolicina * t.cijena).toFixed(2)} €
                             <Button variant="danger" size="sm" onClick={() => ukloniTrosak(t.sifra)}>
                                 Ukloni
                             </Button>
