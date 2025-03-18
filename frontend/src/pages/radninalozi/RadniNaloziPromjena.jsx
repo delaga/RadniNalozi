@@ -28,6 +28,8 @@ export default function RadniNaloziPromjena(){
     const [dodaniTroskovi, setDodaniTroskovi] = useState([]);
     const [postojeciPoslovi, setPostojeciPoslovi] = useState([]);
     const [postojeciTroskovi, setPostojeciTroskovi] = useState([]);
+    const [uredivaniPosao, setUredivaniPosao] = useState(null);
+    const [uredivaniTrosak, setUredivaniTrosak] = useState(null);
     const routeParams = useParams();
 
     async function dohvatiRadniNalog(){
@@ -130,6 +132,116 @@ export default function RadniNaloziPromjena(){
 
     function ukloniTrosak(sifra) {
         setDodaniTroskovi(dodaniTroskovi.filter(t => t.sifra !== sifra));
+    }
+
+    async function ukloniPostojeciPosao(sifra) {
+        try {
+            if (window.confirm("Jeste li sigurni da želite ukloniti ovaj posao?")) {
+                const rezultat = await RadniNalogService.makniPosao(routeParams.sifra, sifra);
+                if (rezultat && !rezultat.greska) {
+                    // Ažuriraj listu postojećih poslova
+                    setPostojeciPoslovi(postojeciPoslovi.filter(p => p.sifra !== sifra));
+                    alert("Posao je uspješno uklonjen.");
+                } else {
+                    alert("Greška kod uklanjanja posla.");
+                }
+            }
+        } catch (error) {
+            console.error("Greška kod uklanjanja posla:", error);
+            alert("Došlo je do greške prilikom uklanjanja posla.");
+        }
+    }
+
+    async function ukloniPostojeciTrosak(sifra) {
+        try {
+            if (window.confirm("Jeste li sigurni da želite ukloniti ovaj trošak?")) {
+                const rezultat = await TrosakService.obrisi(sifra);
+                if (rezultat && !rezultat.greska) {
+                    // Ažuriraj listu postojećih troškova
+                    setPostojeciTroskovi(postojeciTroskovi.filter(t => t.sifra !== sifra));
+                    alert("Trošak je uspješno uklonjen.");
+                } else {
+                    alert("Greška kod uklanjanja troška.");
+                }
+            }
+        } catch (error) {
+            console.error("Greška kod uklanjanja troška:", error);
+            alert("Došlo je do greške prilikom uklanjanja troška.");
+        }
+    }
+
+    function urediPostojeciPosao(posao) {
+        // Ovdje bi trebala biti implementacija za uređivanje postojećeg posla
+        // Za sada samo prikazujemo poruku
+        alert(`Uređivanje posla "${posao.nazivPosla}" nije implementirano u ovoj verziji.`);
+    }
+
+    function urediPostojeciTrosak(trosak) {
+        setUredivaniTrosak(trosak);
+        // Postavi vrijednosti u formu za uređivanje
+        setOdabranaVrstaTroska(trosak.vrsta.toString());
+        setNazivTroska(trosak.naziv);
+        setKolicinaTrosak(trosak.kolicina);
+        setCijenaTrosak(trosak.cijena);
+    }
+
+    async function spremiUredeniTrosak() {
+        if (!uredivaniTrosak) return;
+        
+        try {
+            const azuriraniTrosak = {
+                naziv: nazivTroska,
+                vrsta: parseInt(odabranaVrstaTroska),
+                radniNalog: parseInt(routeParams.sifra),
+                kolicina: kolicinaTrosak,
+                cijena: cijenaTrosak
+            };
+            
+            const rezultat = await TrosakService.promjena(uredivaniTrosak.sifra, azuriraniTrosak);
+            
+            if (!rezultat.greska) {
+                // Ažuriraj listu postojećih troškova
+                const vrstaTroska = vrsteTroskova.find(vt => vt.sifra === parseInt(odabranaVrstaTroska));
+                const azuriraniPostojeciTroskovi = postojeciTroskovi.map(t => {
+                    if (t.sifra === uredivaniTrosak.sifra) {
+                        return {
+                            ...t,
+                            naziv: nazivTroska,
+                            vrsta: parseInt(odabranaVrstaTroska),
+                            vrstaNaziv: vrstaTroska ? vrstaTroska.naziv : t.vrstaNaziv,
+                            kolicina: kolicinaTrosak,
+                            cijena: cijenaTrosak,
+                            ukupno: kolicinaTrosak * cijenaTrosak
+                        };
+                    }
+                    return t;
+                });
+                
+                setPostojeciTroskovi(azuriraniPostojeciTroskovi);
+                
+                // Resetiraj formu
+                setUredivaniTrosak(null);
+                setOdabranaVrstaTroska('');
+                setNazivTroska('');
+                setKolicinaTrosak(1);
+                setCijenaTrosak(0);
+                
+                alert("Trošak je uspješno ažuriran.");
+            } else {
+                alert("Greška kod ažuriranja troška.");
+            }
+        } catch (error) {
+            console.error("Greška kod ažuriranja troška:", error);
+            alert("Došlo je do greške prilikom ažuriranja troška.");
+        }
+    }
+
+    function odustaniOdUredivanja() {
+        setUredivaniTrosak(null);
+        setOdabranaVrstaTroska('');
+        setNazivTroska('');
+        setKolicinaTrosak(1);
+        setCijenaTrosak(0);
     }
 
     async function promjena(radniNalog){
@@ -294,8 +406,27 @@ export default function RadniNaloziPromjena(){
             <div className="mb-3">
                 <ul className="list-group">
                     {postojeciPoslovi.map((p, index) => (
-                        <li key={index} className="list-group-item">
-                            {p.nazivPosla} - Vrijednost: {p.vrijednost}
+                        <li key={index} className="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                {p.nazivPosla} - Vrijednost: {p.vrijednost}
+                            </div>
+                            <div>
+                                <Button 
+                                    variant="warning" 
+                                    size="sm" 
+                                    className="me-2"
+                                    onClick={() => urediPostojeciPosao(p)}
+                                >
+                                    Uredi
+                                </Button>
+                                <Button 
+                                    variant="danger" 
+                                    size="sm"
+                                    onClick={() => ukloniPostojeciPosao(p.sifra)}
+                                >
+                                    Ukloni
+                                </Button>
+                            </div>
                         </li>
                     ))}
                 </ul>
@@ -353,8 +484,27 @@ export default function RadniNaloziPromjena(){
             <div className="mb-3">
                 <ul className="list-group">
                     {postojeciTroskovi.map((t, index) => (
-                        <li key={index} className="list-group-item">
-                            {t.naziv} ({t.vrstaNaziv}) - Količina: {t.kolicina}, Cijena: {t.cijena} €, Ukupno: {t.ukupno} €
+                        <li key={index} className="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                {t.naziv} ({t.vrstaNaziv}) - Količina: {t.kolicina}, Cijena: {t.cijena} €, Ukupno: {t.ukupno} €
+                            </div>
+                            <div>
+                                <Button 
+                                    variant="warning" 
+                                    size="sm" 
+                                    className="me-2"
+                                    onClick={() => urediPostojeciTrosak(t)}
+                                >
+                                    Uredi
+                                </Button>
+                                <Button 
+                                    variant="danger" 
+                                    size="sm"
+                                    onClick={() => ukloniPostojeciTrosak(t.sifra)}
+                                >
+                                    Ukloni
+                                </Button>
+                            </div>
                         </li>
                     ))}
                 </ul>
@@ -363,8 +513,8 @@ export default function RadniNaloziPromjena(){
             <p>Nema postojećih troškova za ovaj radni nalog</p>
         )}
 
-        {/* Dodavanje troškova */}
-        <h4>Dodavanje troškova</h4>
+        {/* Dodavanje/uređivanje troškova */}
+        <h4>{uredivaniTrosak ? 'Uređivanje troška' : 'Dodavanje troška'}</h4>
         <Row className="mb-3">
             <Col md={6}>
                 <Form.Group controlId="odabirVrsteTroska">
@@ -421,9 +571,20 @@ export default function RadniNaloziPromjena(){
         </Row>
         <Row className="mb-3">
             <Col md={12} className="d-flex justify-content-end">
-                <Button variant="primary" onClick={dodajTrosak} className="mb-3">
-                    Dodaj trošak
-                </Button>
+                {uredivaniTrosak ? (
+                    <>
+                        <Button variant="secondary" onClick={odustaniOdUredivanja} className="mb-3 me-2">
+                            Odustani
+                        </Button>
+                        <Button variant="success" onClick={spremiUredeniTrosak} className="mb-3">
+                            Spremi promjene
+                        </Button>
+                    </>
+                ) : (
+                    <Button variant="primary" onClick={dodajTrosak} className="mb-3">
+                        Dodaj trošak
+                    </Button>
+                )}
             </Col>
         </Row>
 

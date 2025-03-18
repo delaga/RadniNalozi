@@ -93,6 +93,34 @@ async function dodajTrosak(radniNalogSifra, trosakSifra, kolicina = 1) {
     }
 }
 
+async function makniPosao(radniNalogSifra, posaoSifra) {
+    try {
+        const odgovor = await HttpService.delete(`/RadniNalog/${radniNalogSifra}/poslovi/${posaoSifra}`);
+        console.log("Uspješno uklonjen posao:", odgovor.data);
+        return { greska: false, poruka: 'Posao uspješno uklonjen' };
+    } catch (e) {
+        console.error("Greška kod uklanjanja posla:", e);
+        if (e.response) {
+            console.error("Detalji greške:", e.response.data);
+        }
+        return { greska: true, poruka: 'Problem kod uklanjanja posla' };
+    }
+}
+
+async function makniTrosak(radniNalogSifra, trosakSifra) {
+    try {
+        const odgovor = await HttpService.delete(`/RadniNalog/${radniNalogSifra}/troskovi/${trosakSifra}`);
+        console.log("Uspješno uklonjen trošak:", odgovor.data);
+        return { greska: false, poruka: 'Trošak uspješno uklonjen' };
+    } catch (e) {
+        console.error("Greška kod uklanjanja troška:", e);
+        if (e.response) {
+            console.error("Detalji greške:", e.response.data);
+        }
+        return { greska: true, poruka: 'Problem kod uklanjanja troška' };
+    }
+}
+
 export default{
     get,
     getBySifra,
@@ -102,5 +130,7 @@ export default{
     getPoslovi,
     getTroskovi,
     dodajPosao,
-    dodajTrosak
+    dodajTrosak,
+    makniPosao,
+    makniTrosak
 }
