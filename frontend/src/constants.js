@@ -30,4 +30,5 @@ export const RouteNames={
     TROSAK_PROMJENA: '/troskovi/:sifra'
 }
 
-export const PRODUKCIJA='https://localhost:7194';
+//export const PRODUKCIJA='https://localhost:7194';
+export const PRODUKCIJA='https://delaga.info';
