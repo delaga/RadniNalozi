@@ -4,12 +4,13 @@ using Backend.Models;
 using Backend.Models.DTO;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System;
 
 namespace Backend.Controllers
 {
     [ApiController]
     [Route("api/v1/[controller]")]
-    public class RadniNalogController(RadniNaloziContext context, IMapper mapper) : EdunovaController(context, mapper)
+    public class RadniNalogController(RadniNaloziContext context, IMapper mapper, IServiceProvider serviceProvider) : EdunovaController(context, mapper)
     {
 
         /// <summary>

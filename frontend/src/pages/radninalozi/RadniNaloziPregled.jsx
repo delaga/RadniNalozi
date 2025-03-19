@@ -103,6 +103,7 @@ export default function RadniNaloziPregled(){
                     <th>Vrijeme početka</th>
                     <th>Vrijeme završetka</th>
                     <th>Radnih sati</th>
+                    <th>Vrijednost radnih sati</th>
                     <th>Ukupni troškovi</th>
                     <th>Ukupno poslovi</th>
                     <th>Vrijednost radnog naloga</th>
@@ -139,6 +140,10 @@ export default function RadniNaloziPregled(){
 
                         <td>
                             {rn.radnihSati}
+                        </td>
+
+                        <td>
+                            {formatirajValutu(rn.vrijednostRadnihSati)}
                         </td>
 
                         <td>

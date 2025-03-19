@@ -1,13 +1,21 @@
 using AutoMapper;
+using Backend.Data;
 using Backend.Models;
 using Backend.Models.DTO;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using System;
 
 namespace Backend.Mapping
 {
     public class RadniNaloziMappingProfile : Profile
     {
-        public RadniNaloziMappingProfile()
+        private readonly IServiceProvider _serviceProvider;
+        
+        public RadniNaloziMappingProfile(IServiceProvider serviceProvider = null)
         {
+            _serviceProvider = serviceProvider;
+            
             // Klijent mappings
             CreateMap<Klijent, KlijentDTORead>();
             CreateMap<KlijentDTOInsertUpdate, Klijent>();
@@ -29,6 +37,8 @@ namespace Backend.Mapping
                     opt => opt.MapFrom(src => src.Djelatnik.Ime + " " + src.Djelatnik.Prezime))
                 .ForCtorParam("KlijentNaziv",
                     opt => opt.MapFrom(src => src.Klijent.Naziv))
+                .ForCtorParam("VrijednostRadnihSati",
+                    opt => opt.MapFrom(src => IzracunajVrijednostRadnihSati(src)))
                 .ForCtorParam("UkupniTroskovi",
                     opt => opt.MapFrom(src => src.Troskovi.Sum(t => t.Kolicina * t.Cijena)))
                 .ForCtorParam("UkupnoPoslovi",
@@ -56,6 +66,38 @@ namespace Backend.Mapping
             CreateMap<Trosak, TrosakDTOInsertUpdate>()
                 .ForMember(dest => dest.Vrsta, opt => opt.MapFrom(src => src.Vrsta))
                 .ForMember(dest => dest.RadniNalog, opt => opt.MapFrom(src => src.RadniNalog));
+        }
+        
+        private decimal IzracunajVrijednostRadnihSati(RadniNalog radniNalog)
+        {
+            if (radniNalog.VrijemePocetka == null || radniNalog.RadnihSati == null || radniNalog.RadnihSati == 0)
+                return 0;
+            
+            var vrijemePocetka = radniNalog.VrijemePocetka.Value;
+            var godina = vrijemePocetka.Year;
+            var mjesec = vrijemePocetka.Month.ToString();
+            
+            // Get the RadniSatiPoMjesecu for the specific month and year
+            RadniSatiPoMjesecu radniSatiUMjesecu = null;
+            
+            if (_serviceProvider != null)
+            {
+                using (var scope = _serviceProvider.CreateScope())
+                {
+                    var dbContext = scope.ServiceProvider.GetRequiredService<RadniNaloziContext>();
+                    radniSatiUMjesecu = dbContext.RadniSatiPoMjesecu
+                        .FirstOrDefault(rs => rs.Godina == godina && rs.Mjesec == mjesec);
+                }
+            }
+            
+            if (radniSatiUMjesecu == null || radniSatiUMjesecu.Sati == 0)
+                return 0;
+            
+            // Calculate the value of one working hour
+            var vrijednostJednogRadnogSata = radniNalog.Djelatnik.Brutto2Placa / radniSatiUMjesecu.Sati;
+            
+            // Calculate the total value of working hours
+            return radniNalog.RadnihSati.Value * vrijednostJednogRadnogSata;
         }
     }
 }

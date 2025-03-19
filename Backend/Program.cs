@@ -21,7 +21,9 @@ builder.Services.AddDbContext<RadniNaloziContext>(o => {
 });
 
 // Add AutoMapper
-builder.Services.AddAutoMapper(typeof(RadniNaloziMappingProfile));
+builder.Services.AddAutoMapper(cfg => {
+    cfg.AddProfile(new RadniNaloziMappingProfile(builder.Services.BuildServiceProvider()));
+});
 
 
 //preduvijet za rad u Frontendu
