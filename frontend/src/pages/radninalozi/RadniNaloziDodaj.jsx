@@ -69,7 +69,7 @@ export default function RadniNaloziDodaj(){
     }
 
     function dodajTrosak() {
-        if (!odabranaVrstaTroska || !nazivTroska || kolicinaTrosak <= 0 || cijenaTrosak <= 0) {
+        if (!odabranaVrstaTroska || !nazivTroska || kolicinaTrosak <= 0) {
             alert("Molimo popunite sva polja za trošak.");
             return;
         }
@@ -293,7 +293,6 @@ export default function RadniNaloziDodaj(){
                     <Form.Label>Količina</Form.Label>
                     <Form.Control 
                         type="number" 
-                        min="0.01" 
                         step="0.01"
                         value={kolicinaTrosak} 
                         onChange={(e) => setKolicinaTrosak(parseFloat(e.target.value))} 
@@ -305,7 +304,6 @@ export default function RadniNaloziDodaj(){
                     <Form.Label>Cijena</Form.Label>
                     <Form.Control 
                         type="number" 
-                        min="0.01" 
                         step="0.01"
                         value={cijenaTrosak} 
                         onChange={(e) => setCijenaTrosak(parseFloat(e.target.value))} 

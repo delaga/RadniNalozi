@@ -112,12 +112,12 @@ export default function TroskoviDodaj(){
 
         <Form.Group controlId="kolicina">
             <Form.Label>Količina</Form.Label>
-            <Form.Control type="number" name="kolicina" step={0.01} required />
+            <Form.Control type="number" name="kolicina"  />
         </Form.Group>
 
         <Form.Group controlId="cijena">
             <Form.Label>Cijena</Form.Label>
-            <Form.Control type="number" name="cijena" step={0.01} required />
+            <Form.Control type="number" name="cijena"   />
         </Form.Group>
 
         <hr/>
