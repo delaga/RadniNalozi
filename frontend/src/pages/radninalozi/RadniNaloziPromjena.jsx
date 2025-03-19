@@ -317,18 +317,21 @@ export default function RadniNaloziPromjena(){
         let podaci = new FormData(e.target);
 
         const updatedRadniNalog = {
-            djelatnik: parseInt(podaci.get('djelatnik')),
-            klijent: parseInt(podaci.get('klijent')),
+            djelatnikSifra: parseInt(podaci.get('djelatnik')),
+            klijentSifra: parseInt(podaci.get('klijent')),
             vrijemePocetka: podaci.get('vrijemePocetka') ? new Date(podaci.get('vrijemePocetka')).toISOString() : null,
             vrijemeZavrsetka: podaci.get('vrijemeZavrsetka') ? new Date(podaci.get('vrijemeZavrsetka')).toISOString() : null,
             radnihSati: podaci.get('radnihSati') ? parseFloat(podaci.get('radnihSati')) : null,
             napomena: podaci.get('napomena').trim() === '' ? null : podaci.get('napomena').trim(),
-            poslovi: dodaniPoslovi.map(p => ({ 
+            posloviLista: dodaniPoslovi.map(p => ({ 
                 sifra: p.sifra
             })),
-            troskovi: dodaniTroskovi.map(t => ({ 
-                sifra: t.sifra, 
-                kolicina: t.kolicina 
+            troskoviLista: dodaniTroskovi.map(t => ({
+                naziv: t.naziv,
+                vrsta: t.vrsta,
+                radniNalog: parseInt(routeParams.sifra),
+                kolicina: t.kolicina,
+                cijena: t.cijena
             }))
         };
 

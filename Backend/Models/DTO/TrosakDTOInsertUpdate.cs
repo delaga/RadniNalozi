@@ -7,7 +7,8 @@ namespace Backend.Models.DTO
     public record TrosakDTOInsertUpdate
     {
         public string Naziv { get; init; } = "";
-        public int VrstaSifra { get; init; }
+        public int Vrsta { get; init; }
+        public int RadniNalog { get; init; }
         public decimal Kolicina { get; init; }
         public decimal Cijena { get; init; }
     }

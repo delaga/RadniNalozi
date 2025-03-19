@@ -49,8 +49,13 @@ namespace Backend.Mapping
                     opt => opt.MapFrom(src => src.Kolicina * src.Cijena));
             
             // Mapiranje za dodavanje i ažuriranje troška
-            CreateMap<TrosakDTOInsertUpdate, Trosak>();
-            CreateMap<Trosak, TrosakDTOInsertUpdate>();
+            CreateMap<TrosakDTOInsertUpdate, Trosak>()
+                .ForMember(dest => dest.Vrsta, opt => opt.MapFrom(src => src.Vrsta))
+                .ForMember(dest => dest.RadniNalog, opt => opt.MapFrom(src => src.RadniNalog));
+            
+            CreateMap<Trosak, TrosakDTOInsertUpdate>()
+                .ForMember(dest => dest.Vrsta, opt => opt.MapFrom(src => src.Vrsta))
+                .ForMember(dest => dest.RadniNalog, opt => opt.MapFrom(src => src.RadniNalog));
         }
     }
 }

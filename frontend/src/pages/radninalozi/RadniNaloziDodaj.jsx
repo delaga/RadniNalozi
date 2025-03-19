@@ -80,7 +80,7 @@ export default function RadniNaloziDodaj(){
         const noviTrosak = {
             naziv: nazivTroska,
             kolicina: kolicinaTrosak,
-            vrstaSifra: parseInt(odabranaVrstaTroska),
+            vrsta: parseInt(odabranaVrstaTroska),
             cijena: cijenaTrosak
         };
         
@@ -145,16 +145,22 @@ export default function RadniNaloziDodaj(){
         let podaci = new FormData(e.target);
 
         const radniNalog = {
-            djelatnik: parseInt(podaci.get('djelatnik')),
-            klijent: parseInt(podaci.get('klijent')),
+            djelatnikSifra: parseInt(podaci.get('djelatnik')),
+            klijentSifra: parseInt(podaci.get('klijent')),
             vrijemePocetka: podaci.get('vrijemePocetka') ? new Date(podaci.get('vrijemePocetka')).toISOString() : null,
             vrijemeZavrsetka: podaci.get('vrijemeZavrsetka') ? new Date(podaci.get('vrijemeZavrsetka')).toISOString() : null,
             radnihSati: podaci.get('radnihSati') ? parseFloat(podaci.get('radnihSati')) : null,
             napomena: podaci.get('napomena').trim() === '' ? null : podaci.get('napomena').trim(),
-            poslovi: dodaniPoslovi.map(p => ({ 
+            posloviLista: dodaniPoslovi.map(p => ({ 
                 sifra: p.sifra
             })),
-            troskovi: dodaniTroskovi
+            troskoviLista: dodaniTroskovi.map(t => ({
+                naziv: t.naziv,
+                vrsta: t.vrsta,
+                radniNalog: 0, // This will be set by the backend
+                kolicina: t.kolicina,
+                cijena: t.cijena
+            }))
         };
 
         dodaj(radniNalog);
