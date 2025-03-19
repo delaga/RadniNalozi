@@ -80,8 +80,7 @@ export default function RadniNaloziDodaj(){
         const noviTrosak = {
             naziv: nazivTroska,
             kolicina: kolicinaTrosak,
-            vrsta: parseInt(odabranaVrstaTroska),
-            vrstaNaziv: vrstaTroska.naziv,
+            vrstaSifra: parseInt(odabranaVrstaTroska),
             cijena: cijenaTrosak
         };
         
@@ -107,7 +106,7 @@ export default function RadniNaloziDodaj(){
             alert(odgovor.poruka)
             return
         }
-
+/*
         // Ako imamo dodane poslove, dodajemo ih na radni nalog
         const radniNalogSifra = odgovor.sifra || odgovor.data?.sifra;
         if (radniNalogSifra) {
@@ -136,7 +135,7 @@ export default function RadniNaloziDodaj(){
                 }
             }
         }
-
+*/
         navigate(RouteNames.RADNINALOG_PREGLED)
     }
 
@@ -155,10 +154,7 @@ export default function RadniNaloziDodaj(){
             poslovi: dodaniPoslovi.map(p => ({ 
                 sifra: p.sifra
             })),
-            troskovi: dodaniTroskovi.map(t => ({ 
-                sifra: t.sifra, 
-                kolicina: t.kolicina 
-            }))
+            troskovi: dodaniTroskovi
         };
 
         dodaj(radniNalog);
