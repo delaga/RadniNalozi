@@ -155,7 +155,7 @@ export default function RadniNaloziPregled(){
                         </td>
 
                         <td>
-                            {formatirajValutu((rn.ukupniTroskovi || 0) + (rn.ukupnoPoslovi || 0))}
+                            {formatirajValutu((rn.ukupniTroskovi || 0) + (rn.ukupnoPoslovi || 0) + (rn.vrijednostRadnihSati || 0))}
                         </td>
 
                         <td>
@@ -254,7 +254,7 @@ export default function RadniNaloziPregled(){
                     <Col>
                         <div className="d-flex justify-content-end">
                             <h4>
-                                Ukupna vrijednost radnog naloga: {formatirajValutu((selectedRadniNalog.ukupniTroskovi || 0) + (selectedRadniNalog.ukupnoPoslovi || 0))}
+                                Ukupna vrijednost radnog naloga: {formatirajValutu((selectedRadniNalog.ukupniTroskovi || 0) + (selectedRadniNalog.ukupnoPoslovi || 0) + (selectedRadniNalog.vrijednostRadnihSati || 0))}
                             </h4>
                         </div>
                     </Col>
