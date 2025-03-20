@@ -29,7 +29,7 @@ const styles = StyleSheet.create({
     flex: 1
   },
   title: {
-    fontSize: 20,
+    fontSize: 14,
     marginBottom: 10,
     fontWeight: 'bold'
   },
@@ -37,7 +37,7 @@ const styles = StyleSheet.create({
     marginBottom: 15
   },
   subtitle: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: 'bold',
     marginBottom: 5
   },
@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
   tableCell: {
     flex: 1,
     padding: 3,
-    fontSize: 10
+    fontSize: 8
   },
   totals: {
     marginTop: 20,
