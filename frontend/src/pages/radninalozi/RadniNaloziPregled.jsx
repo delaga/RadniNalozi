@@ -8,6 +8,68 @@ import { Link, useNavigate } from "react-router-dom";
 import { RouteNames } from "../../constants";
 import moment from "moment";
 
+// PDF Button Component
+function PDFButton({ radniNalog }) {
+    const [loading, setLoading] = useState(false);
+    const [pdfReady, setPdfReady] = useState(false);
+    const [posloviData, setPosloviData] = useState([]);
+    const [troskoviData, setTroskoviData] = useState([]);
+
+    const prepareData = async () => {
+        setLoading(true);
+        try {
+            // Fetch data for this specific radni nalog
+            const poslovi = await RadniNalogService.getPoslovi(radniNalog.sifra);
+            const troskovi = await RadniNalogService.getTroskovi(radniNalog.sifra);
+            
+            // Update state with the fetched data
+            setPosloviData(poslovi || []);
+            setTroskoviData(troskovi || []);
+            setPdfReady(true);
+        } catch (error) {
+            console.error("Error fetching data for PDF:", error);
+            alert("Greška pri dohvaćanju podataka za PDF");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <Button
+            variant="secondary"
+            onClick={(e) => {
+                e.stopPropagation();
+                if (!pdfReady) {
+                    prepareData();
+                }
+            }}
+        >
+            {loading ? (
+                "Učitavanje podataka..."
+            ) : pdfReady ? (
+                <ErrorBoundary fallback={<span>Greška pri generiranju PDF-a</span>}>
+                    <PDFDownloadLink
+                        document={
+                            <PdfDocument 
+                                radniNalog={radniNalog} 
+                                poslovi={posloviData}
+                                troskovi={troskoviData}
+                            />
+                        }
+                        fileName={`RadniNalog_${radniNalog.sifra}.pdf`}
+                    >
+                        {({ loading: pdfLoading }) => 
+                            pdfLoading ? 'Priprema PDF...' : 'Ispis kalkulacije'
+                        }
+                    </PDFDownloadLink>
+                </ErrorBoundary>
+            ) : (
+                "Pripremi PDF"
+            )}
+        </Button>
+    );
+}
+
 
 export function formatirajDatum(datum){
     if(datum==null){
@@ -167,27 +229,7 @@ export default function RadniNaloziPregled(){
                             }}
                             >Promjena</Button>
                             &nbsp;
-                            <Button
-                                variant="secondary"
-                                onClick={(e) => e.stopPropagation()}
-                            >
-                                <ErrorBoundary
-                                    fallback={<span>Greška pri generiranju PDF-a</span>}
-                                >
-                                    <PDFDownloadLink
-                                        document={<PdfDocument 
-                                            radniNalog={rn} 
-                                            poslovi={poslovi.filter(p => p.radniNalogSifra === rn.sifra)}
-                                            troskovi={troskovi.filter(t => t.radniNalogSifra === rn.sifra)}
-                                        />}
-                                        fileName={`RadniNalog_${rn.sifra}.pdf`}
-                                    >
-                                        {({ loading }) => 
-                                            loading ? 'Priprema...' : 'Ispis kalkulacije'
-                                        }
-                                    </PDFDownloadLink>
-                                </ErrorBoundary>
-                            </Button>
+                            <PDFButton radniNalog={rn} />
                             &nbsp;
                             <Button
                             variant="danger"

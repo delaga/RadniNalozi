@@ -93,8 +93,10 @@ export const PdfDocument = ({ radniNalog, poslovi, troskovi }) => (
         
         <View style={[styles.section, {marginTop: 10}]}>
           <Text style={styles.subtitle}>Radni sati:</Text>
-          <Text>Broj sati: {radniNalog.brojSati}</Text>
-          <Text>Cijena po satu: {formatirajValutu(radniNalog.cijenaPoSatu)}</Text>
+          <Text>Broj sati: {radniNalog.radnihSati || 0}</Text>
+          <Text>Cijena po satu: {radniNalog.radnihSati && radniNalog.vrijednostRadnihSati ? 
+            formatirajValutu(radniNalog.vrijednostRadnihSati / radniNalog.radnihSati) : 
+            formatirajValutu(0)}</Text>
           <Text>Ukupna vrijednost: {formatirajValutu(radniNalog.vrijednostRadnihSati)}</Text>
         </View>
       </View>
@@ -115,7 +117,8 @@ export const PdfDocument = ({ radniNalog, poslovi, troskovi }) => (
             ))
           ) : (
             <View style={styles.tableRow}>
-              <Text style={styles.tableCell}>Nema unesenih poslova</Text>
+              <Text style={styles.tableCell} colSpan={2}>Nema unesenih poslova</Text>
+              <Text style={styles.tableCell}></Text>
             </View>
           )}
         </View>
@@ -143,7 +146,7 @@ export const PdfDocument = ({ radniNalog, poslovi, troskovi }) => (
             ))
           ) : (
             <View style={styles.tableRow}>
-              <Text style={styles.tableCell}>Nema unesenih troškova</Text>
+              <Text style={styles.tableCell} colSpan={5}>Nema unesenih troškova</Text>
             </View>
           )}
         </View>
