@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { ErrorBoundary } from 'react-error-boundary'
 import RadniNalogService from "../../services/RadniNalogService"
 import { Button, Table, Modal, Tabs, Tab } from "react-bootstrap";
 import { PDFDownloadLink } from '@react-pdf/renderer';
@@ -170,18 +171,22 @@ export default function RadniNaloziPregled(){
                                 variant="secondary"
                                 onClick={(e) => e.stopPropagation()}
                             >
-                                <PDFDownloadLink
-                                    document={<PdfDocument 
-                                        radniNalog={rn} 
-                                        poslovi={poslovi.filter(p => p.radniNalogSifra === rn.sifra)}
-                                        troskovi={troskovi.filter(t => t.radniNalogSifra === rn.sifra)}
-                                    />}
-                                    fileName={`RadniNalog_${rn.sifra}.pdf`}
+                                <ErrorBoundary
+                                    fallback={<span>Greška pri generiranju PDF-a</span>}
                                 >
-                                    {({ loading }) => 
-                                        loading ? 'Priprema...' : 'Ispis kalkulacije'
-                                    }
-                                </PDFDownloadLink>
+                                    <PDFDownloadLink
+                                        document={<PdfDocument 
+                                            radniNalog={rn} 
+                                            poslovi={poslovi.filter(p => p.radniNalogSifra === rn.sifra)}
+                                            troskovi={troskovi.filter(t => t.radniNalogSifra === rn.sifra)}
+                                        />}
+                                        fileName={`RadniNalog_${rn.sifra}.pdf`}
+                                    >
+                                        {({ loading }) => 
+                                            loading ? 'Priprema...' : 'Ispis kalkulacije'
+                                        }
+                                    </PDFDownloadLink>
+                                </ErrorBoundary>
                             </Button>
                             &nbsp;
                             <Button

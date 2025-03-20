@@ -74,6 +74,7 @@ export const PdfDocument = ({ radniNalog, poslovi, troskovi }) => (
       <View style={styles.header}>
         <Image src="/logo.png" style={styles.logo} />
         <View style={styles.companyInfo}>
+          <Text style={styles.title}>RADNI NALOG</Text>
           <Text style={styles.title}>OCULUS</Text>
           <Text>Obrt za informatičke djelatnosti</Text>
           <Text>vl. Jelena Drača</Text>
@@ -89,6 +90,13 @@ export const PdfDocument = ({ radniNalog, poslovi, troskovi }) => (
         <Text>Klijent: {radniNalog.klijentNaziv}</Text>
         <Text>Početak: {formatirajDatum(radniNalog.vrijemePocetka)}</Text>
         <Text>Završetak: {formatirajDatum(radniNalog.vrijemeZavrsetka)}</Text>
+        
+        <View style={[styles.section, {marginTop: 10}]}>
+          <Text style={styles.subtitle}>Radni sati:</Text>
+          <Text>Broj sati: {radniNalog.brojSati}</Text>
+          <Text>Cijena po satu: {formatirajValutu(radniNalog.cijenaPoSatu)}</Text>
+          <Text>Ukupna vrijednost: {formatirajValutu(radniNalog.vrijednostRadnihSati)}</Text>
+        </View>
       </View>
 
       <View style={styles.section}>
@@ -98,12 +106,18 @@ export const PdfDocument = ({ radniNalog, poslovi, troskovi }) => (
             <Text style={styles.tableCell}>Naziv posla</Text>
             <Text style={styles.tableCell}>Vrijednost</Text>
           </View>
-          {poslovi.map((posao, index) => (
-            <View key={index} style={styles.tableRow}>
-              <Text style={styles.tableCell}>{posao.nazivPosla}</Text>
-              <Text style={styles.tableCell}>{formatirajValutu(posao.vrijednost)}</Text>
+          {poslovi && poslovi.length > 0 ? (
+            poslovi.map((posao, index) => (
+              <View key={index} style={styles.tableRow}>
+                <Text style={styles.tableCell}>{posao.nazivPosla}</Text>
+                <Text style={styles.tableCell}>{formatirajValutu(posao.vrijednost)}</Text>
+              </View>
+            ))
+          ) : (
+            <View style={styles.tableRow}>
+              <Text style={styles.tableCell}>Nema unesenih poslova</Text>
             </View>
-          ))}
+          )}
         </View>
       </View>
 
@@ -117,15 +131,21 @@ export const PdfDocument = ({ radniNalog, poslovi, troskovi }) => (
             <Text style={styles.tableCell}>Cijena</Text>
             <Text style={styles.tableCell}>Ukupno</Text>
           </View>
-          {troskovi.map((trosak, index) => (
-            <View key={index} style={styles.tableRow}>
-              <Text style={styles.tableCell}>{trosak.naziv}</Text>
-              <Text style={styles.tableCell}>{trosak.vrstaNaziv}</Text>
-              <Text style={styles.tableCell}>{trosak.kolicina}</Text>
-              <Text style={styles.tableCell}>{formatirajValutu(trosak.cijena)}</Text>
-              <Text style={styles.tableCell}>{formatirajValutu(trosak.ukupno)}</Text>
+          {troskovi && troskovi.length > 0 ? (
+            troskovi.map((trosak, index) => (
+              <View key={index} style={styles.tableRow}>
+                <Text style={styles.tableCell}>{trosak.naziv}</Text>
+                <Text style={styles.tableCell}>{trosak.vrstaNaziv}</Text>
+                <Text style={styles.tableCell}>{trosak.kolicina}</Text>
+                <Text style={styles.tableCell}>{formatirajValutu(trosak.cijena)}</Text>
+                <Text style={styles.tableCell}>{formatirajValutu(trosak.ukupno)}</Text>
+              </View>
+            ))
+          ) : (
+            <View style={styles.tableRow}>
+              <Text style={styles.tableCell}>Nema unesenih troškova</Text>
             </View>
-          ))}
+          )}
         </View>
       </View>
 
@@ -139,6 +159,13 @@ export const PdfDocument = ({ radniNalog, poslovi, troskovi }) => (
             radniNalog.ukupniTroskovi + 
             radniNalog.ukupnoPoslovi
           )}
+        </Text>
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.subtitle}>Napomena:</Text>
+        <Text>
+          {radniNalog.napomena || 'Nema napomene uz radni nalog'}
         </Text>
       </View>
     </Page>
