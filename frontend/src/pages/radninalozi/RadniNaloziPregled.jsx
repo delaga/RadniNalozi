@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import RadniNalogService from "../../services/RadniNalogService"
-import { Button, Table, Container, Row, Col } from "react-bootstrap";
+import { Button, Table, Modal, Tabs, Tab } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import { RouteNames } from "../../constants";
 import moment from "moment";
@@ -14,6 +14,7 @@ export default function RadniNaloziPregled(){
     const[poslovi, setPoslovi] = useState([]); // Poslovi vezani za odabrani radni nalog
     const[troskovi, setTroskovi] = useState([]); // Troškovi vezani za odabrani radni nalog
     const navigate = useNavigate();
+    const [showPosloviModal, setShowPosloviModal] = useState(false);
 
     async function dohvatiRadniNalozi(){
         const odgovor = await RadniNalogService.get()
@@ -74,17 +75,10 @@ export default function RadniNaloziPregled(){
 
     // Funkcija za odabir radnog naloga i prikaz povezanih poslova i troškova
     function selectRadniNalog(rn) {
-        if (selectedRadniNalog && selectedRadniNalog.sifra === rn.sifra) {
-            // Ako je kliknuti redak već odabran, poništi odabir
-            setSelectedRadniNalog(null);
-            setPoslovi([]);
-            setTroskovi([]);
-        } else {
-            // Odaberi novi redak i dohvati povezane poslove i troškove
-            setSelectedRadniNalog(rn);
-            dohvatiPoslove(rn.sifra);
-            dohvatiTroskove(rn.sifra);
-        }
+        setSelectedRadniNalog(rn);
+        dohvatiPoslove(rn.sifra);
+        dohvatiTroskove(rn.sifra);
+        setShowPosloviModal(true);
     }
 
 
@@ -183,14 +177,19 @@ export default function RadniNaloziPregled(){
             </tbody>
         </Table>
         
-        {/* Prikaz poslova i troškova samo kada je odabran radni nalog */}
-        {selectedRadniNalog && (
-            <Container className="mt-4">
-                {/* Tablica poslova */}
-                <Row>
-                    <Col>
-                        <h4>Poslovi za radni nalog: {selectedRadniNalog.sifra}</h4>
-                        <Table striped bordered hover responsive>
+        {/* Modali za prikaz poslova i troškova */}
+        <Modal 
+            show={showPosloviModal} 
+            onHide={() => setShowPosloviModal(false)}
+            size="xl"
+        >
+            <Modal.Header closeButton>
+                <Modal.Title>Detalji radnog naloga: {selectedRadniNalog?.sifra}</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                <Tabs defaultActiveKey="poslovi" className="mb-3">
+                    <Tab eventKey="poslovi" title="Poslovi">
+                        <Table striped bordered hover responsive className="mt-3">
                             <thead>
                                 <tr>
                                     <th>Naziv</th>
@@ -212,13 +211,9 @@ export default function RadniNaloziPregled(){
                                 )}
                             </tbody>
                         </Table>
-                    </Col>
-                </Row>
-                {/* Tablica troškova */}
-                <Row className="mt-4">
-                    <Col>
-                        <h4>Troškovi za radni nalog: {selectedRadniNalog.sifra}</h4>
-                        <Table striped bordered hover responsive>
+                    </Tab>
+                    <Tab eventKey="troskovi" title="Troškovi">
+                        <Table striped bordered hover responsive className="mt-3">
                             <thead>
                                 <tr>
                                     <th>Naziv</th>
@@ -246,21 +241,21 @@ export default function RadniNaloziPregled(){
                                 )}
                             </tbody>
                         </Table>
-                    </Col>
-                </Row>
-                
-                {/* Ukupna vrijednost radnog naloga */}
-                <Row className="mt-4">
-                    <Col>
-                        <div className="d-flex justify-content-end">
-                            <h4>
-                                Ukupna vrijednost radnog naloga: {formatirajValutu((selectedRadniNalog.ukupniTroskovi || 0) + (selectedRadniNalog.ukupnoPoslovi || 0) + (selectedRadniNalog.vrijednostRadnihSati || 0))}
-                            </h4>
-                        </div>
-                    </Col>
-                </Row>
-            </Container>
-        )}
+                    </Tab>
+                </Tabs>
+            </Modal.Body>
+            <Modal.Footer>
+                <div className="d-flex justify-content-end w-100">
+                    <h4>
+                        Ukupna vrijednost radnog naloga: {formatirajValutu(
+                            (selectedRadniNalog?.ukupniTroskovi || 0) + 
+                            (selectedRadniNalog?.ukupnoPoslovi || 0) + 
+                            (selectedRadniNalog?.vrijednostRadnihSati || 0)
+                        )}
+                    </h4>
+                </div>
+            </Modal.Footer>
+        </Modal>
         </>
     )
 }
