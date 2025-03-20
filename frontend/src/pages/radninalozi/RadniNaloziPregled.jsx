@@ -1,10 +1,26 @@
 import { useEffect, useState } from "react"
 import RadniNalogService from "../../services/RadniNalogService"
 import { Button, Table, Modal, Tabs, Tab } from "react-bootstrap";
+import { PDFDownloadLink } from '@react-pdf/renderer';
+import { PdfDocument } from '../../components/RadniNalogPDF';
 import { Link, useNavigate } from "react-router-dom";
 import { RouteNames } from "../../constants";
 import moment from "moment";
 
+
+export function formatirajDatum(datum){
+    if(datum==null){
+        return 'Nije definirano'
+    }
+    return moment.utc(datum).format('DD. MM. YYYY. HH:mm')
+}
+
+export function formatirajValutu(iznos) {
+    if (iznos === null || iznos === undefined) {
+        return '0.00 €';
+    }
+    return iznos.toFixed(2) + ' €';
+}
 
 export default function RadniNaloziPregled(){
 
@@ -26,20 +42,6 @@ export default function RadniNaloziPregled(){
     useEffect(()=>{
         dohvatiRadniNalozi();
     },[])
-
-    function formatirajDatum(datum){
-        if(datum==null){
-            return 'Nije definirano'
-        }
-        return moment.utc(datum).format('DD. MM. YYYY. HH:mm')
-    }
-
-    function formatirajValutu(iznos) {
-        if (iznos === null || iznos === undefined) {
-            return '0.00 €';
-        }
-        return iznos.toFixed(2) + ' €';
-    }
 
     function obrisi(sifra){
         if(!confirm('Sigurno obrisati')){
@@ -163,7 +165,25 @@ export default function RadniNaloziPregled(){
                                 navigate(`/radninalozi/${rn.sifra}`);
                             }}
                             >Promjena</Button>
-                            &nbsp;&nbsp;&nbsp;
+                            &nbsp;
+                            <Button
+                                variant="secondary"
+                                onClick={(e) => e.stopPropagation()}
+                            >
+                                <PDFDownloadLink
+                                    document={<PdfDocument 
+                                        radniNalog={rn} 
+                                        poslovi={poslovi.filter(p => p.radniNalogSifra === rn.sifra)}
+                                        troskovi={troskovi.filter(t => t.radniNalogSifra === rn.sifra)}
+                                    />}
+                                    fileName={`RadniNalog_${rn.sifra}.pdf`}
+                                >
+                                    {({ loading }) => 
+                                        loading ? 'Priprema...' : 'Ispis kalkulacije'
+                                    }
+                                </PDFDownloadLink>
+                            </Button>
+                            &nbsp;
                             <Button
                             variant="danger"
                             onClick={(e) => {
