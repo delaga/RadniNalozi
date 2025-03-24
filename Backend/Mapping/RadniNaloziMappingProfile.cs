@@ -33,8 +33,8 @@ namespace Backend.Mapping
 
             // RadniNalog mappings
             CreateMap<RadniNalog, RadniNalogDTORead>()
-                .ForCtorParam("DjelatnikImeIPrezime",
-                    opt => opt.MapFrom(src => src.Djelatnik.Ime + " " + src.Djelatnik.Prezime))
+                .ForCtorParam("Djelatnici",
+                    opt => opt.MapFrom(src => src.Djelatnici.Select(d => new DjelatnikInfo(d.Sifra, d.Ime + " " + d.Prezime)).ToList()))
                 .ForCtorParam("KlijentNaziv",
                     opt => opt.MapFrom(src => src.Klijent.Naziv))
                 .ForCtorParam("VrijednostRadnihSati",
@@ -70,12 +70,12 @@ namespace Backend.Mapping
         
         private decimal IzracunajVrijednostRadnihSati(RadniNalog radniNalog)
         {
-            if (radniNalog.VrijemePocetka == null || radniNalog.RadnihSati == null || radniNalog.RadnihSati == 0)
+            if (radniNalog.VrijemePocetka == null || radniNalog.RadnihSati == null || radniNalog.RadnihSati == 0 || !radniNalog.Djelatnici.Any())
                 return 0;
             
             var vrijemePocetka = radniNalog.VrijemePocetka.Value;
             var godina = vrijemePocetka.Year;
-            var mjesec = vrijemePocetka.Month.ToString();
+            var mjesec = vrijemePocetka.Month.ToString("00");
             
             // Get the RadniSatiPoMjesecu for the specific month and year
             RadniSatiPoMjesecu radniSatiUMjesecu = null;
@@ -93,8 +93,9 @@ namespace Backend.Mapping
             if (radniSatiUMjesecu == null || radniSatiUMjesecu.Sati == 0)
                 return 0;
             
-            // Calculate the value of one working hour
-            var vrijednostJednogRadnogSata = radniNalog.Djelatnik.Brutto2Placa / radniSatiUMjesecu.Sati;
+            // Calculate the average value of one working hour for all djelatnici
+            var prosjecnaBrutto2Placa = radniNalog.Djelatnici.Average(d => d.Brutto2Placa);
+            var vrijednostJednogRadnogSata = prosjecnaBrutto2Placa / radniSatiUMjesecu.Sati;
             
             // Calculate the total value of working hours
             return radniNalog.RadnihSati.Value * vrijednostJednogRadnogSata;

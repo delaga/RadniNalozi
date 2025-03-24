@@ -86,7 +86,9 @@ export const PdfDocument = ({ radniNalog, poslovi, troskovi }) => (
       <View style={styles.section}>
         <Text style={styles.subtitle}>Osnovni podaci radnog naloga</Text>
         <Text>Broj naloga: {radniNalog.sifra}</Text>
-        <Text>Djelatnik: {radniNalog.djelatnikImeIPrezime}</Text>
+        <Text>Djelatnici: {radniNalog.djelatnici && radniNalog.djelatnici.length > 0 
+          ? radniNalog.djelatnici.map(d => d.imeIPrezime).join(', ') 
+          : 'Nema dodijeljenih djelatnika'}</Text>
         <Text>Klijent: {radniNalog.klijentNaziv}</Text>
         <Text>Početak: {formatirajDatum(radniNalog.vrijemePocetka)}</Text>
         <Text>Završetak: {formatirajDatum(radniNalog.vrijemeZavrsetka)}</Text>

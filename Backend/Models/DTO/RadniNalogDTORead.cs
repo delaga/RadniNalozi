@@ -2,7 +2,7 @@ namespace Backend.Models.DTO
 {
     public record RadniNalogDTORead(
         int Sifra,
-        string DjelatnikImeIPrezime,
+        List<DjelatnikInfo> Djelatnici,
         string KlijentNaziv,
         DateTime? VrijemePocetka,
         DateTime? VrijemeZavrsetka,
@@ -12,4 +12,9 @@ namespace Backend.Models.DTO
         decimal UkupnoPoslovi,
         string? Napomena
         );
+
+    public record DjelatnikInfo(
+        int Sifra,
+        string ImeIPrezime
+    );
 }

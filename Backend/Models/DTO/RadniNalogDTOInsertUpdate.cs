@@ -1,7 +1,7 @@
 namespace Backend.Models.DTO
 {
     public record RadniNalogDTOInsertUpdate(
-        int DjelatnikSifra,
+        List<RNDIU> DjelatniciLista,
         int KlijentSifra,
         DateTime? VrijemePocetka,
         DateTime? VrijemeZavrsetka,
@@ -12,4 +12,6 @@ namespace Backend.Models.DTO
     );
 
     public record RNPIU(int sifra);
+    
+    public record RNDIU(int sifra);
 }

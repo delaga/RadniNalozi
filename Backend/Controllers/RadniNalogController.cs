@@ -24,7 +24,7 @@ namespace Backend.Controllers
             {
                 var radniNalozi = _context.RadniNalozi
                     .Include(r => r.Klijent)
-                    .Include(r => r.Djelatnik)
+                    .Include(r => r.Djelatnici)
                     .Include(r => r.Troskovi)
                     .Include(r => r.Poslovi)
                     .ToList();
@@ -54,7 +54,7 @@ namespace Backend.Controllers
             {
                 var radniNalog = _context.RadniNalozi
                     .Include(r => r.Klijent)
-                    .Include(r => r.Djelatnik)
+                    .Include(r => r.Djelatnici)
                     .Include(r => r.Troskovi)
                     .Include(r => r.Poslovi)
                     .FirstOrDefault(r => r.Sifra == sifra);
@@ -88,11 +88,14 @@ namespace Backend.Controllers
 
             try
             {
-                // Check if Djelatnik exists
-                var djelatnik = _context.Djelatnici.Find(dto.DjelatnikSifra);
-                if (djelatnik == null)
+                // Check if Djelatnici exist
+                foreach (var djelatnikItem in dto.DjelatniciLista)
                 {
-                    return BadRequest(new { poruka = $"Djelatnik s šifrom {dto.DjelatnikSifra} ne postoji" });
+                    var djelatnik = _context.Djelatnici.Find(djelatnikItem.sifra);
+                    if (djelatnik == null)
+                    {
+                        return BadRequest(new { poruka = $"Djelatnik s šifrom {djelatnikItem.sifra} ne postoji" });
+                    }
                 }
 
                 // Check if Klijent exists
@@ -111,7 +114,15 @@ namespace Backend.Controllers
                         radniNalog.Poslovi.Add(posaoBaza);
                     }
                 }
-                radniNalog.Djelatnik = djelatnik;
+                // Add djelatnici to radni nalog
+                foreach (var djelatnikItem in dto.DjelatniciLista)
+                {
+                    var djelatnikBaza = _context.Djelatnici.Find(djelatnikItem.sifra);
+                    if (djelatnikBaza != null)
+                    {
+                        radniNalog.Djelatnici.Add(djelatnikBaza);
+                    }
+                }
                 radniNalog.Klijent = klijent;
                 _context.RadniNalozi.Add(radniNalog);
 
@@ -142,17 +153,24 @@ namespace Backend.Controllers
 
             try
             {
-                var radniNalogBaza = _context.RadniNalozi.Find(sifra);
+                var radniNalogBaza = _context.RadniNalozi
+                    .Include(r => r.Djelatnici)
+                    .Include(r => r.Poslovi)
+                    .Include(r => r.Troskovi)
+                    .FirstOrDefault(r => r.Sifra == sifra);
                 if (radniNalogBaza == null)
                 {
                     return NotFound(new { poruka = $"Radni nalog s šifrom {sifra} ne postoji" });
                 }
 
-                // Check if Djelatnik exists
-                var djelatnik = _context.Djelatnici.Find(dto.DjelatnikSifra);
-                if (djelatnik == null)
+                // Check if Djelatnici exist
+                foreach (var djelatnikItem in dto.DjelatniciLista)
                 {
-                    return BadRequest(new { poruka = $"Djelatnik s šifrom {dto.DjelatnikSifra} ne postoji" });
+                    var djelatnik = _context.Djelatnici.Find(djelatnikItem.sifra);
+                    if (djelatnik == null)
+                    {
+                        return BadRequest(new { poruka = $"Djelatnik s šifrom {djelatnikItem.sifra} ne postoji" });
+                    }
                 }
 
                 // Check if Klijent exists
@@ -162,8 +180,37 @@ namespace Backend.Controllers
                     return BadRequest(new { poruka = $"Klijent s šifrom {dto.KlijentSifra} ne postoji" });
                 }
 
-                _mapper.Map(dto, radniNalogBaza);
-                _context.RadniNalozi.Update(radniNalogBaza);
+                // Očisti postojeće kolekcije
+                radniNalogBaza.Djelatnici.Clear();
+                radniNalogBaza.Poslovi.Clear();
+
+                // Dodaj nove djelatnike
+                foreach (var djelatnikItem in dto.DjelatniciLista)
+                {
+                    var djelatnikBaza = _context.Djelatnici.Find(djelatnikItem.sifra);
+                    if (djelatnikBaza != null)
+                    {
+                        radniNalogBaza.Djelatnici.Add(djelatnikBaza);
+                    }
+                }
+
+                // Dodaj nove poslove
+                foreach (var posao in dto.PosloviLista)
+                {
+                    var posaoBaza = _context.Poslovi.Find(posao.sifra);
+                    if (posaoBaza != null)
+                    {
+                        radniNalogBaza.Poslovi.Add(posaoBaza);
+                    }
+                }
+
+                // Ažuriraj ostala svojstva
+                radniNalogBaza.Klijent = klijent;
+                radniNalogBaza.VrijemePocetka = dto.VrijemePocetka;
+                radniNalogBaza.VrijemeZavrsetka = dto.VrijemeZavrsetka;
+                radniNalogBaza.RadnihSati = dto.RadnihSati;
+                radniNalogBaza.Napomena = dto.Napomena;
+
                 _context.SaveChanges();
                 return Ok(_mapper.Map<RadniNalogDTORead>(radniNalogBaza));
             }
@@ -183,7 +230,12 @@ namespace Backend.Controllers
             }
             try
             {
-                var radniNalog = _context.RadniNalozi.Find(sifra);
+                var radniNalog = _context.RadniNalozi
+                    .Include(r => r.Djelatnici)
+                    .Include(r => r.Poslovi)
+                    .Include(r => r.Troskovi)
+                    .FirstOrDefault(r => r.Sifra == sifra);
+                    
                 if (radniNalog == null)
                 {
                     return NotFound(new { poruka = $"Radni nalog s šifrom {sifra} ne postoji" });
@@ -446,6 +498,128 @@ namespace Backend.Controllers
                 _context.SaveChanges();
 
                 return Ok(_mapper.Map<List<TrosakDTORead>>(radniNalog.Troskovi));
+            }
+            catch (Exception e)
+            {
+                return BadRequest(new { poruka = e.Message });
+            }
+        }
+
+        /// <summary>
+        /// Gets all djelatnici for a specific radni nalog
+        /// </summary>
+        /// <param name="sifra">RadniNalog identifier</param>
+        /// <returns>List of djelatnici for the specified radni nalog</returns>
+        [HttpGet("{sifra:int}/djelatnici")]
+        public IActionResult GetDjelatniciNaRadnomNalogu(int sifra)
+        {
+            if (sifra <= 0)
+            {
+                return BadRequest(new { poruka = "Šifra mora biti pozitivan broj" });
+            }
+
+            try
+            {
+                var radniNalog = _context.RadniNalozi
+                    .Include(r => r.Djelatnici)
+                    .FirstOrDefault(r => r.Sifra == sifra);
+
+                if (radniNalog == null)
+                {
+                    return NotFound(new { poruka = $"Radni nalog s šifrom {sifra} ne postoji" });
+                }
+
+                return Ok(_mapper.Map<List<DjelatnikDTORead>>(radniNalog.Djelatnici));
+            }
+            catch (Exception e)
+            {
+                return BadRequest(new { poruka = e.Message });
+            }
+        }
+
+        /// <summary>
+        /// Adds a djelatnik to radni nalog
+        /// </summary>
+        /// <param name="sifraRadniNalog">RadniNalog identifier</param>
+        /// <param name="sifraDjelatnik">Djelatnik identifier</param>
+        /// <returns>Updated list of djelatnici</returns>
+        [HttpPost("{sifraRadniNalog:int}/djelatnici/{sifraDjelatnik:int}")]
+        public IActionResult DodajDjelatnikaNaRadniNalog(int sifraRadniNalog, int sifraDjelatnik)
+        {
+            if (sifraRadniNalog <= 0 || sifraDjelatnik <= 0)
+            {
+                return BadRequest(new { poruka = "Šifre moraju biti pozitivni brojevi" });
+            }
+
+            try
+            {
+                var radniNalog = _context.RadniNalozi
+                    .Include(r => r.Djelatnici)
+                    .FirstOrDefault(r => r.Sifra == sifraRadniNalog);
+
+                if (radniNalog == null)
+                {
+                    return NotFound(new { poruka = $"Radni nalog s šifrom {sifraRadniNalog} ne postoji" });
+                }
+
+                var djelatnik = _context.Djelatnici.Find(sifraDjelatnik);
+                if (djelatnik == null)
+                {
+                    return NotFound(new { poruka = $"Djelatnik s šifrom {sifraDjelatnik} ne postoji" });
+                }
+
+                // Provjeri da li je djelatnik već dodan na radni nalog
+                if (radniNalog.Djelatnici.Any(d => d.Sifra == sifraDjelatnik))
+                {
+                    return BadRequest(new { poruka = $"Djelatnik s šifrom {sifraDjelatnik} je već dodan na ovaj radni nalog" });
+                }
+
+                radniNalog.Djelatnici.Add(djelatnik);
+                _context.SaveChanges();
+
+                return Ok(_mapper.Map<List<DjelatnikDTORead>>(radniNalog.Djelatnici));
+            }
+            catch (Exception e)
+            {
+                return BadRequest(new { poruka = e.Message });
+            }
+        }
+
+        /// <summary>
+        /// Removes a djelatnik from radni nalog
+        /// </summary>
+        /// <param name="sifraRadniNalog">RadniNalog identifier</param>
+        /// <param name="sifraDjelatnik">Djelatnik identifier</param>
+        /// <returns>Updated list of djelatnici</returns>
+        [HttpDelete("{sifraRadniNalog:int}/djelatnici/{sifraDjelatnik:int}")]
+        public IActionResult MakniDjelatnikaSaRadnogNaloga(int sifraRadniNalog, int sifraDjelatnik)
+        {
+            if (sifraRadniNalog <= 0 || sifraDjelatnik <= 0)
+            {
+                return BadRequest(new { poruka = "Šifre moraju biti pozitivni brojevi" });
+            }
+
+            try
+            {
+                var radniNalog = _context.RadniNalozi
+                    .Include(r => r.Djelatnici)
+                    .FirstOrDefault(r => r.Sifra == sifraRadniNalog);
+
+                if (radniNalog == null)
+                {
+                    return NotFound(new { poruka = $"Radni nalog s šifrom {sifraRadniNalog} ne postoji" });
+                }
+
+                var djelatnik = radniNalog.Djelatnici.FirstOrDefault(d => d.Sifra == sifraDjelatnik);
+                if (djelatnik == null)
+                {
+                    return NotFound(new { poruka = $"Djelatnik s šifrom {sifraDjelatnik} ne postoji na ovom radnom nalogu" });
+                }
+
+                radniNalog.Djelatnici.Remove(djelatnik);
+                _context.SaveChanges();
+
+                return Ok(_mapper.Map<List<DjelatnikDTORead>>(radniNalog.Djelatnici));
             }
             catch (Exception e)
             {

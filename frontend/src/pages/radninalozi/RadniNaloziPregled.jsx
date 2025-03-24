@@ -157,7 +157,7 @@ export default function RadniNaloziPregled(){
             <thead>
                 <tr>
                     <th>Radni nalog</th>
-                    <th>Djelatnik</th>
+                    <th>Djelatnici</th>
                     <th>Klijent</th>
                     <th>Vrijeme početka</th>
                     <th>Vrijeme završetka</th>
@@ -182,7 +182,12 @@ export default function RadniNaloziPregled(){
                             Broj: {rn.sifra}
                         </td>
                         <td>
-                            {rn.djelatnikImeIPrezime}
+                            {rn.djelatnici && rn.djelatnici.map((d, i) => (
+                                <div key={i}>
+                                    {d.imeIPrezime}
+                                    {i < rn.djelatnici.length - 1 && <hr className="my-1" />}
+                                </div>
+                            ))}
                         </td>
                         
                         <td>

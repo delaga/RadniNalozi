@@ -64,6 +64,18 @@ async function getTroskovi(sifra){
     .catch((e)=>{return []}) // U slučaju greške vraća prazno polje
 }
 
+// Dohvaća djelatnike vezane za radni nalog s određenom šifrom
+async function getDjelatnici(sifra){
+    return await HttpService.get('/RadniNalog/' + sifra + '/djelatnici')
+    .then((odgovor)=>{
+        return odgovor.data;
+    })
+    .catch((e)=>{
+        console.error("Greška kod dohvaćanja djelatnika:", e);
+        return []
+    }) // U slučaju greške vraća prazno polje
+}
+
 
 async function dodajPosao(radniNalogSifra, posaoSifra, kolicina = 1) {
     try {
@@ -121,6 +133,34 @@ async function makniTrosak(radniNalogSifra, trosakSifra) {
     }
 }
 
+async function dodajDjelatnika(radniNalogSifra, djelatnikSifra) {
+    try {
+        const odgovor = await HttpService.post(`/RadniNalog/${radniNalogSifra}/djelatnici/${djelatnikSifra}`);
+        console.log("Uspješno dodan djelatnik:", odgovor.data);
+        return odgovor.data;
+    } catch (e) {
+        console.error("Greška kod dodavanja djelatnika:", e);
+        if (e.response) {
+            console.error("Detalji greške:", e.response.data);
+        }
+        return { greska: true, poruka: 'Problem kod dodavanja djelatnika' };
+    }
+}
+
+async function makniDjelatnika(radniNalogSifra, djelatnikSifra) {
+    try {
+        const odgovor = await HttpService.delete(`/RadniNalog/${radniNalogSifra}/djelatnici/${djelatnikSifra}`);
+        console.log("Uspješno uklonjen djelatnik:", odgovor.data);
+        return { greska: false, poruka: 'Djelatnik uspješno uklonjen' };
+    } catch (e) {
+        console.error("Greška kod uklanjanja djelatnika:", e);
+        if (e.response) {
+            console.error("Detalji greške:", e.response.data);
+        }
+        return { greska: true, poruka: 'Problem kod uklanjanja djelatnika' };
+    }
+}
+
 export default{
     get,
     getBySifra,
@@ -129,8 +169,11 @@ export default{
     obrisi,
     getPoslovi,
     getTroskovi,
+    getDjelatnici,
     dodajPosao,
     dodajTrosak,
+    dodajDjelatnika,
     makniPosao,
-    makniTrosak
+    makniTrosak,
+    makniDjelatnika
 }

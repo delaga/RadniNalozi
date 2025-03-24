@@ -1,4 +1,4 @@
-﻿SELECT name, collation_name FROM sys.databases;
+﻿﻿SELECT name, collation_name FROM sys.databases;
 GO
 ALTER DATABASE db_ab2d4a_radninalozi SET SINGLE_USER WITH
 ROLLBACK IMMEDIATE;
@@ -36,12 +36,16 @@ create table klijenti(
 
 create table radniNalozi (
 	sifra int not null PRIMARY KEY IDENTITY(1,1),
-	djelatnik int not null references djelatnici(sifra),
 	klijent int not null references klijenti(sifra),
 	vrijemePocetka datetime,
 	vrijemeZavrsetka datetime,
 	radnihSati decimal (18,2),
 	napomena text
+);
+
+create table djelatnik_radniNalog (
+	djelatnik int not null references djelatnici(sifra),
+	radniNalog int not null references radniNalozi(sifra)
 );
 
 create table posao_radniNalog (
@@ -82,8 +86,11 @@ insert into poslovi(nazivPosla,vrijednost) values
 ('Postavljanje nosača',99.99),
 ('Programiranje HomeAssistant',249.99);
 
-insert into radniNalozi(djelatnik,klijent,vrijemePocetka,vrijemeZavrsetka,radnihSati,napomena) values
-(1,1,'2024-10-02 08:00:00','2024-12-03 10:00:00',40,'Nosač postavljen po uputi ISP-a');
+insert into radniNalozi(klijent,vrijemePocetka,vrijemeZavrsetka,radnihSati,napomena) values
+(1,'2024-10-02 08:00:00','2024-12-03 10:00:00',40,'Nosač postavljen po uputi ISP-a');
+
+insert into djelatnik_radniNalog(djelatnik, radniNalog) values
+(1,1);
 
 insert into vrstaTroskova(naziv) values
 ('Cestarina'),

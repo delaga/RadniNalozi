@@ -19,13 +19,16 @@ export default function RadniNaloziPromjena(){
     const [klijenti, setKlijenti] = useState([]);
     const [poslovi, setPoslovi] = useState([]);
     const [vrsteTroskova, setVrsteTroskova] = useState([]);
+    const [odabraniDjelatnik, setOdabraniDjelatnik] = useState('');
     const [odabraniPosao, setOdabraniPosao] = useState('');
     const [odabranaVrstaTroska, setOdabranaVrstaTroska] = useState('');
     const [nazivTroska, setNazivTroska] = useState('');
     const [kolicinaTrosak, setKolicinaTrosak] = useState(1);
     const [cijenaTrosak, setCijenaTrosak] = useState(0);
+    const [dodaniDjelatnici, setDodaniDjelatnici] = useState([]);
     const [dodaniPoslovi, setDodaniPoslovi] = useState([]);
     const [dodaniTroskovi, setDodaniTroskovi] = useState([]);
+    const [postojeciDjelatnici, setPostojeciDjelatnici] = useState([]);
     const [postojeciPoslovi, setPostojeciPoslovi] = useState([]);
     const [postojeciTroskovi, setPostojeciTroskovi] = useState([]);
     const [uredivaniPosao, setUredivaniPosao] = useState(null);
@@ -66,6 +69,16 @@ export default function RadniNaloziPromjena(){
         setVrsteTroskova(odgovor);
     }
 
+    async function dohvatiPostojeceDjelatnike(){
+        try {
+            const odgovor = await RadniNalogService.getDjelatnici(routeParams.sifra);
+            setPostojeciDjelatnici(odgovor || []);
+        } catch (error) {
+            console.error("Greška kod dohvaćanja djelatnika:", error);
+            setPostojeciDjelatnici([]);
+        }
+    }
+
     async function dohvatiPostojecePoslove(){
         const odgovor = await RadniNalogService.getPoslovi(routeParams.sifra);
         setPostojeciPoslovi(odgovor || []);
@@ -82,9 +95,32 @@ export default function RadniNaloziPromjena(){
         dohvatiKlijenti();
         dohvatiPoslovi();
         dohvatiVrsteTroskova();
+        dohvatiPostojeceDjelatnike();
         dohvatiPostojecePoslove();
         dohvatiPostojeceTroskove();
     },[]);
+
+    function dodajDjelatnik() {
+        if (!odabraniDjelatnik) return;
+        
+        const djelatnik = djelatnici.find(d => d.sifra === parseInt(odabraniDjelatnik));
+        if (!djelatnik) return;
+        
+        // Provjeri da li je djelatnik već dodan
+        if (dodaniDjelatnici.some(d => d.sifra === djelatnik.sifra)) {
+            alert("Djelatnik je već dodan na radni nalog.");
+            return;
+        }
+        
+        const noviDjelatnik = {
+            sifra: djelatnik.sifra,
+            ime: djelatnik.ime,
+            prezime: djelatnik.prezime
+        };
+        
+        setDodaniDjelatnici([...dodaniDjelatnici, noviDjelatnik]);
+        setOdabraniDjelatnik('');
+    }
 
     function dodajPosao() {
         if (!odabraniPosao) return;
@@ -126,12 +162,34 @@ export default function RadniNaloziPromjena(){
         setCijenaTrosak(0);
     }
 
+    function ukloniDjelatnik(sifra) {
+        setDodaniDjelatnici(dodaniDjelatnici.filter(d => d.sifra !== sifra));
+    }
+
     function ukloniPosao(sifra) {
         setDodaniPoslovi(dodaniPoslovi.filter(p => p.sifra !== sifra));
     }
 
     function ukloniTrosak(sifra) {
         setDodaniTroskovi(dodaniTroskovi.filter(t => t.sifra !== sifra));
+    }
+
+    async function ukloniPostojeciDjelatnik(sifra) {
+        try {
+            if (window.confirm("Jeste li sigurni da želite ukloniti ovog djelatnika?")) {
+                const rezultat = await RadniNalogService.makniDjelatnika(routeParams.sifra, sifra);
+                if (rezultat && !rezultat.greska) {
+                    // Ažuriraj listu postojećih djelatnika
+                    setPostojeciDjelatnici(postojeciDjelatnici.filter(d => d.sifra !== sifra));
+                    alert("Djelatnik je uspješno uklonjen.");
+                } else {
+                    alert("Greška kod uklanjanja djelatnika.");
+                }
+            }
+        } catch (error) {
+            console.error("Greška kod uklanjanja djelatnika:", error);
+            alert("Došlo je do greške prilikom uklanjanja djelatnika.");
+        }
     }
 
     async function ukloniPostojeciPosao(sifra) {
@@ -317,7 +375,9 @@ export default function RadniNaloziPromjena(){
         let podaci = new FormData(e.target);
 
         const updatedRadniNalog = {
-            djelatnikSifra: parseInt(podaci.get('djelatnik')),
+            djelatniciLista: dodaniDjelatnici.map(d => ({ 
+                sifra: d.sifra
+            })),
             klijentSifra: parseInt(podaci.get('klijent')),
             vrijemePocetka: podaci.get('vrijemePocetka') ? new Date(podaci.get('vrijemePocetka')).toISOString() : null,
             vrijemeZavrsetka: podaci.get('vrijemeZavrsetka') ? new Date(podaci.get('vrijemeZavrsetka')).toISOString() : null,
@@ -343,15 +403,76 @@ export default function RadniNaloziPromjena(){
     Promjena Radnog naloga
     <Form onSubmit={odradiSubmit}>
 
-        <Form.Group controlId="djelatnik">
-            <Form.Label>Djelatnik</Form.Label>
-            <Form.Select name="djelatnik" required defaultValue={radniNalog.djelatnik}>
-                <option value="">Odaberite djelatnika</option>
-                {djelatnici && djelatnici.map((d,index)=>(
-                    <option key={index} value={d.sifra}>{d.ime} {d.prezime}</option>
-                ))}
-            </Form.Select>
-        </Form.Group>
+        {/* Postojeći djelatnici */}
+        <h4>Postojeći djelatnici</h4>
+        {postojeciDjelatnici.length > 0 ? (
+            <div className="mb-3">
+                <ul className="list-group">
+                    {postojeciDjelatnici.map((d, index) => (
+                        <li key={index} className="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                {d.ime} {d.prezime}
+                            </div>
+                            <div>
+                                <Button 
+                                    variant="danger" 
+                                    size="sm"
+                                    onClick={() => ukloniPostojeciDjelatnik(d.sifra)}
+                                >
+                                    Ukloni
+                                </Button>
+                            </div>
+                        </li>
+                    ))}
+                </ul>
+            </div>
+        ) : (
+            <p>Nema postojećih djelatnika za ovaj radni nalog</p>
+        )}
+
+        {/* Dodavanje djelatnika */}
+        <h4>Dodavanje djelatnika</h4>
+        <Row className="mb-3">
+            <Col md={8}>
+                <Form.Group controlId="odabirDjelatnika">
+                    <Form.Label>Odaberi djelatnika</Form.Label>
+                    <Form.Select 
+                        value={odabraniDjelatnik} 
+                        onChange={(e) => setOdabraniDjelatnik(e.target.value)}
+                    >
+                        <option value="">Odaberite djelatnika</option>
+                        {djelatnici && djelatnici.map((d, index) => (
+                            <option key={index} value={d.sifra}>{d.ime} {d.prezime}</option>
+                        ))}
+                    </Form.Select>
+                </Form.Group>
+            </Col>
+            
+            <Col md={4} className="d-flex align-items-end">
+                <Button variant="primary" onClick={dodajDjelatnik} className="mb-3">
+                    Dodaj
+                </Button>
+            </Col>
+        </Row>
+
+        {/* Prikaz dodanih djelatnika */}
+        {dodaniDjelatnici.length > 0 && (
+            <div className="mb-3">
+                <h5>Novi djelatnici za dodati:</h5>
+                <ul className="list-group">
+                    {dodaniDjelatnici.map((d, index) => (
+                        <li key={index} className="list-group-item d-flex justify-content-between align-items-center">
+                            {d.ime} {d.prezime}
+                            <Button variant="danger" size="sm" onClick={() => ukloniDjelatnik(d.sifra)}>
+                                Ukloni
+                            </Button>
+                        </li>
+                    ))}
+                </ul>
+            </div>
+        )}
+
+        <hr/>
 
         <Form.Group controlId="klijent">
             <Form.Label>Klijent</Form.Label>

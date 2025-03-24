@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace Backend.Models
 {
@@ -14,5 +15,7 @@ namespace Backend.Models
 
         public decimal Brutto2Placa  { get; set; } = 0;
 
+        [JsonIgnore]
+        public ICollection<RadniNalog> RadniNalozi { get; } = [];
     }
 }

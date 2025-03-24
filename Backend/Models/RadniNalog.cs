@@ -5,10 +5,8 @@ namespace Backend.Models
 {
     public class RadniNalog : Entitet
     {
-     
-        [ForeignKey("djelatnik")]
-        public required Djelatnik Djelatnik{ get; set; }
-
+        // Kolekcija djelatnika vezanih za radni nalog
+        public ICollection<Djelatnik> Djelatnici { get; set; } = [];
       
         [ForeignKey("klijent")]
         public required Klijent Klijent { get; set; }
