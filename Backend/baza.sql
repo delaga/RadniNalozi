@@ -75,6 +75,15 @@ create table radniSatiPoMjesecu(
 	sati int not null
 );
 
+create table djelatnik_radniNalog (
+	djelatnik int not null references djelatnici(sifra),
+	radniNalog int not null references radniNalozi(sifra)
+);
+
+insert into posao_radniNalog(posao, radniNalog) values
+
+(1,1),(2,1);
+
 insert into djelatnici(ime,prezime,brutto2Placa) values
 ('Rade','Janković',1000),('Dino','Dizdarević',1000),('Milan','Drača',1000),('Mirza','Delagić',1000);
 
